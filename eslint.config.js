@@ -19,4 +19,14 @@ export default defineConfig([
       globals: globals.browser,
     },
   },
+  {
+    files: [
+      'src/modules/auth/authStore.ts',
+      'src/modules/auth/AuthBootstrap.tsx',
+      'src/shared/theme/AppThemeProvider.tsx',
+    ],
+    rules: {
+      'react-refresh/only-export-components': 'off',
+    },
+  },
 ])
