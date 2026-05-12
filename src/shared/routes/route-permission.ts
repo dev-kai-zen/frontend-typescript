@@ -18,9 +18,6 @@ function passesPermissionFields(
   if (item.permissionAny?.length) {
     return item.permissionAny.some(has);
   }
-  if (item.permission) {
-    return has(item.permission);
-  }
   return true;
 }
 

@@ -10,8 +10,9 @@ export default function HomePage() {
         <p>You are signed in.</p>
         <p>
           Authenticated URLs and sidebar entries are defined in{" "}
-          <code>shared/routes/routesConfig.tsx</code>. How they are turned into
-          routes and drawer rows lives in <code>shared/routes/route-nav.ts</code>
+          <code>shared/routes/routesConfig.ts</code>. React Router registration
+          is in <code>shared/routes/AppRoutes.tsx</code>; flat leaves and drawer
+          data helpers live in <code>shared/routes/route-nav.ts</code>
           . Types are in <code>shared/routes/route-nav-types.ts</code>. Use{" "}
           <code>hidden: true</code> on a leaf keeps the URL but skips the drawer.
           Optional <code>permission</code>, <code>permissionAny</code>, or{" "}

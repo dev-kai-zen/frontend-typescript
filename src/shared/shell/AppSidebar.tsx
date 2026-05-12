@@ -21,7 +21,7 @@ import {
 } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
-import { useAuthStore } from "../../modules/auth/authStore";
+import { useAuthStore } from "../../modules/auth/auth-store";
 import { filterNavTreeByPermissions } from "../routes/route-permission";
 import {
   ROUTES_SIDEBAR_TREE,
@@ -134,7 +134,7 @@ export default function AppSidebar({
       );
     }
 
-    return renderSection(item as RouteNavGroup, depth);
+    return renderSection(item, depth);
   };
 
   function renderSection(item: RouteNavGroup, depth: number) {
@@ -171,9 +171,7 @@ export default function AppSidebar({
             disablePadding
             sx={{ pl: depth ? 3 + depth * 2 : 3 }}
           >
-            {item.children.map((child) =>
-              renderItem(child, depth + 1),
-            )}
+            {item.children.map((child) => renderItem(child, depth + 1))}
           </List>
         </Collapse>
       </Fragment>
@@ -234,9 +232,7 @@ export default function AppSidebar({
           aria-label="Main navigation"
           sx={{ color: "inherit", bgcolor: "transparent" }}
         >
-          {sidebarTree.map((entry) =>
-            renderItem(entry, 0),
-          )}
+          {sidebarTree.map((entry) => renderItem(entry, 0))}
         </List>
       </Box>
     </Drawer>

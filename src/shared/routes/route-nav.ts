@@ -1,24 +1,21 @@
 /**
- * Builds router + sidebar behaviour from **`routesConfig.tsx`** (data only).
+ * Sidebar + path helpers from **`routesConfig.ts`**. Nested tree → flat router
+ * leaves is implemented in **`AppRoutes.tsx`** (`navTreeToLayoutRouteLeaves`).
  */
 
-import type { RouteNavItem, RouteNavLeaf } from "./route-nav-types";
+import type { RouteNavItem } from "./route-nav-types";
 import { isRouteNavGroup } from "./route-nav-types";
 import { ROUTES_NAV_TREE } from "./routesConfig";
 
-export type { RouteNavGroup, RouteNavItem, RouteNavLeaf } from "./route-nav-types";
-export { isRouteNavGroup } from "./route-nav-types";
-
-function flattenLeaves(items: RouteNavItem[]): RouteNavLeaf[] {
-  return items.flatMap((item) =>
-    isRouteNavGroup(item) ? flattenLeaves(item.children) : [item],
-  );
-}
-
-/** Paths registered inside `MainLayout`. */
-export function getLayoutRouteLeaves(): RouteNavLeaf[] {
-  return flattenLeaves(ROUTES_NAV_TREE);
-}
+export type {
+  RouteNavGroup,
+  RouteNavItem,
+  RouteNavLeaf,
+} from "./route-nav-types";
+export {
+  isRouteNavGroup,
+  isRouteNavLeaf,
+} from "./route-nav-types";
 
 /** Drops `hidden` leaves/groups; removes sidebar sections whose children vanished. */
 export function filterSidebarNav(items: RouteNavItem[]): RouteNavItem[] {
@@ -48,10 +45,7 @@ export function normalizePathname(pathname: string) {
   return pathname;
 }
 
-export function itemMatchesPath(
-  item: RouteNavItem,
-  pathname: string,
-): boolean {
+export function itemMatchesPath(item: RouteNavItem, pathname: string): boolean {
   const p = normalizePathname(pathname);
   if (!isRouteNavGroup(item)) {
     const base = normalizePathname(item.path);

@@ -12,7 +12,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { loginWithGoogle } from "./authApi";
-import { useAuthStore } from "./authStore";
+import { useAuthStore } from "./auth-store";
 import { getEnv } from "../../shared/config/env";
 
 /**

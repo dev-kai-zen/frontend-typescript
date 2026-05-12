@@ -2,7 +2,6 @@ import AdminPanelSettingsIcon from "@mui/icons-material/AdminPanelSettings";
 import HomeIcon from "@mui/icons-material/Home";
 import PersonIcon from "@mui/icons-material/Person";
 import SettingsIcon from "@mui/icons-material/Settings";
-import VisibilityOffOutlined from "@mui/icons-material/VisibilityOffOutlined";
 
 import HiddenRoutePage from "../../modules/hidden-route/HiddenRoutePage";
 import HomePage from "../../modules/home/HomePage";
@@ -11,39 +10,47 @@ import UserManagementPage from "../../modules/user-management/UserManagementPage
 
 import type { RouteNavItem } from "./route-nav-types";
 
+/**
+ * Declarative nav + URL tree only: paths, labels, icons, grouping, flags.
+ * `<AppRoutes />` is responsible for turning leaves into `<Route />` elements
+ * and mounting each `Page` after auth/permission checks.
+ */
 export const ROUTES_NAV_TREE: RouteNavItem[] = [
   {
+    kind: "leaf",
     key: "home",
     path: "/home",
-    element: <HomePage />,
+    Page: HomePage,
     label: "Home",
     Icon: HomeIcon,
   },
   {
+    kind: "leaf",
     key: "settings",
     path: "/settings",
-    element: <SettingsPage />,
+    Page: SettingsPage,
     label: "Settings",
     Icon: SettingsIcon,
   },
   {
+    kind: "group",
     key: "administration",
     label: "Administration",
     Icon: AdminPanelSettingsIcon,
     children: [
       {
+        kind: "leaf",
         key: "user-management",
         path: "/user-management",
-        element: <UserManagementPage />,
+        Page: UserManagementPage,
         label: "User management",
         Icon: PersonIcon,
       },
       {
+        kind: "leaf",
         key: "hidden-route",
         path: "/hidden-route",
-        element: <HiddenRoutePage />,
-        label: "Hidden route",
-        Icon: VisibilityOffOutlined,
+        Page: HiddenRoutePage,
         hidden: true,
       },
     ],

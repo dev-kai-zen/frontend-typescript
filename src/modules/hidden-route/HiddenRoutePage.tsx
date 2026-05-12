@@ -8,7 +8,7 @@ export default function HiddenRoutePage() {
         Hidden route
       </Typography>
       <Typography color="text.secondary">
-        This page is registered in <code>routesConfig.tsx</code> with{" "}
+        This page is registered in <code>routesConfig.ts</code> with{" "}
         <code>hidden: true</code>. Open it by URL or in-app navigation only.
       </Typography>
     </div>

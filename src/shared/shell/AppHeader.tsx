@@ -19,7 +19,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { logoutOnServer } from "../../modules/auth/authApi";
-import { useAuthStore } from "../../modules/auth/authStore";
+import { useAuthStore } from "../../modules/auth/auth-store";
 import { useThemeMode } from "../theme/AppThemeProvider";
 
 import { APP_SHELL_DRAWER_WIDTH } from "./layout-constants";
