@@ -9,6 +9,8 @@ import type { RouteNavItem, RouteNavLeaf } from "./route-nav-types";
 import { isRouteNavGroup } from "./route-nav-types";
 import { ROUTES_NAV_TREE } from "./routesConfig";
 import RequireAuth from "./RequireAuth";
+/** Stable fallback for Zustand selectors — `?? []` would allocate a new array every snapshot and break `useSyncExternalStore`. */
+const NO_PERMISSIONS: readonly string[] = [];
 
 // Get the routes from the routesConfig (Like getting the leaves from the tree)
 function collectLayoutLeavesFromTree(
@@ -45,7 +47,7 @@ function canViewerOpenLeaf(
 
 // Outlet for each leaf in `ROUTES_NAV_TREE`: check access, otherwise restricted screen.
 function RouteLeafOutlet({ leaf }: { leaf: RouteNavLeaf }) {
-  const permissionCodes = useAuthStore((s) => s.user?.permissions ?? []);
+  const permissionCodes = useAuthStore((s) => s.user?.permissions ?? NO_PERMISSIONS);
   const roleName = useAuthStore((s) => s.user?.role?.role_name ?? null);
 
   if (!canViewerOpenLeaf(permissionCodes, roleName, leaf)) {

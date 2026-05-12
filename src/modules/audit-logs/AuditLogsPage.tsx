@@ -24,8 +24,8 @@ import {
 import { useEffect, useMemo, useState } from "react";
 
 import { getRbacApiErrorMessage } from "../rbac/permissions/rbac-api-errors";
-import { fetchUserLogs } from "./user-logs-api";
-import type { UserLogDto } from "./user-logs.types";
+import { fetchAuditLogs } from "./audit-logs-api";
+import type { AuditLogDto } from "./audit-logs.types";
 
 function formatJsonPreview(value: unknown, maxLen = 72): string {
   if (value === null || value === undefined) return "—";
@@ -46,32 +46,28 @@ function formatTimestamp(iso: string): string {
 const PAGE_SIZE_OPTIONS = [25, 50, 100, 200] as const;
 
 /**
- * Administration — user activity logs (`GET /api/v1/user-logs`).
+ * Administration — audit trail (read-only list from `/api/v1/audit-logs`).
  *
  * **For junior developers**
- * - `user-logs.types.ts` — row + query types (response snake_case, query camelCase)
- * - `user-logs-api.ts` — GET with optional `userId`, `action`, `module`, `limit`, `offset`
+ * - `audit-logs.types.ts` — log row DTOs
+ * - `audit-logs-api.ts` — GET with optional `action`, `entity_type`, `limit`, `offset`
  * - Backend caps `limit` at 200 and defaults to 50 when omitted
  */
-export default function UserLogsPage() {
-  const [rows, setRows] = useState<UserLogDto[]>([]);
+export default function AuditLogsPage() {
+  const [rows, setRows] = useState<AuditLogDto[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [refreshNonce, setRefreshNonce] = useState(0);
 
-  const [draftUserId, setDraftUserId] = useState("");
   const [draftAction, setDraftAction] = useState("");
-  const [draftModule, setDraftModule] = useState("");
-  const [appliedUserId, setAppliedUserId] = useState<number | undefined>(
-    undefined,
-  );
+  const [draftEntityType, setDraftEntityType] = useState("");
   const [appliedAction, setAppliedAction] = useState("");
-  const [appliedModule, setAppliedModule] = useState("");
+  const [appliedEntityType, setAppliedEntityType] = useState("");
 
   const [pageSize, setPageSize] = useState<number>(50);
   const [pageIndex, setPageIndex] = useState(0);
 
-  const [detailRow, setDetailRow] = useState<UserLogDto | null>(null);
+  const [detailRow, setDetailRow] = useState<AuditLogDto | null>(null);
 
   const offset = pageIndex * pageSize;
 
@@ -84,10 +80,9 @@ export default function UserLogsPage() {
 
     (async () => {
       try {
-        const list = await fetchUserLogs({
-          userId: appliedUserId,
+        const list = await fetchAuditLogs({
           action: appliedAction.trim() || undefined,
-          module: appliedModule.trim() || undefined,
+          entity_type: appliedEntityType.trim() || undefined,
           limit: pageSize,
           offset,
         });
@@ -95,7 +90,7 @@ export default function UserLogsPage() {
         setRows(list);
       } catch (err) {
         if (!cancelled) {
-          setError(getRbacApiErrorMessage(err, "Failed to load user logs"));
+          setError(getRbacApiErrorMessage(err, "Failed to load audit logs"));
         }
       } finally {
         if (!cancelled) setLoading(false);
@@ -107,9 +102,8 @@ export default function UserLogsPage() {
     };
   }, [
     refreshNonce,
-    appliedUserId,
     appliedAction,
-    appliedModule,
+    appliedEntityType,
     pageSize,
     offset,
   ]);
@@ -125,18 +119,14 @@ export default function UserLogsPage() {
           id: detailRow.id,
           user_id: detailRow.user_id,
           action: detailRow.action,
-          module: detailRow.module,
-          description: detailRow.description,
-          method: detailRow.method,
-          route: detailRow.route,
-          status_code: detailRow.status_code,
+          entity_type: detailRow.entity_type,
+          entity_id: detailRow.entity_id,
+          change_fields: detailRow.change_fields,
+          old_values: detailRow.old_values,
+          new_values: detailRow.new_values,
           ip_address: detailRow.ip_address,
           user_agent: detailRow.user_agent,
-          device_type: detailRow.device_type,
-          browser: detailRow.browser,
-          os: detailRow.os,
-          session_id: detailRow.session_id,
-          metadata: detailRow.metadata,
+          timestamp: detailRow.timestamp,
           created_at: detailRow.created_at,
           updated_at: detailRow.updated_at,
         },
@@ -149,21 +139,9 @@ export default function UserLogsPage() {
   }, [detailRow]);
 
   const applyFilters = () => {
-    const uidRaw = draftUserId.trim();
-    if (uidRaw === "") {
-      setAppliedUserId(undefined);
-    } else {
-      const n = Number.parseInt(uidRaw, 10);
-      if (!Number.isFinite(n)) {
-        setError("User ID must be a whole number or empty.");
-        return;
-      }
-      setAppliedUserId(n);
-    }
     setAppliedAction(draftAction.trim());
-    setAppliedModule(draftModule.trim());
+    setAppliedEntityType(draftEntityType.trim());
     setPageIndex(0);
-    setError(null);
   };
 
   return (
@@ -179,12 +157,11 @@ export default function UserLogsPage() {
       >
         <div>
           <Typography variant="h5" component="h1" gutterBottom>
-            User logs
+            Audit logs
           </Typography>
           <Typography variant="body2" color="text.secondary">
-            Request and activity records per user (newest first). Filters map to
-            the <code>userId</code>, <code>action</code>, and <code>module</code>{" "}
-            query parameters.
+            Immutable-style trail of changes (newest first). Filter by action or
+            entity type; pagination uses limit and offset on the server.
           </Typography>
         </div>
         <Stack direction="row" spacing={1} useFlexGap sx={{ flexWrap: "wrap" }}>
@@ -208,16 +185,6 @@ export default function UserLogsPage() {
             sx={{ flexWrap: "wrap", alignItems: "flex-end", mb: 2 }}
           >
             <TextField
-              label="User ID"
-              size="small"
-              value={draftUserId}
-              onChange={(e) => setDraftUserId(e.target.value)}
-              slotProps={{
-                htmlInput: { inputMode: "numeric", pattern: "[0-9]*" },
-              }}
-              sx={{ minWidth: 120 }}
-            />
-            <TextField
               label="Action"
               size="small"
               value={draftAction}
@@ -225,11 +192,11 @@ export default function UserLogsPage() {
               sx={{ minWidth: 160 }}
             />
             <TextField
-              label="Module"
+              label="Entity type"
               size="small"
-              value={draftModule}
-              onChange={(e) => setDraftModule(e.target.value)}
-              sx={{ minWidth: 160 }}
+              value={draftEntityType}
+              onChange={(e) => setDraftEntityType(e.target.value)}
+              sx={{ minWidth: 180 }}
             />
             <Button variant="contained" onClick={applyFilters}>
               Apply filters
@@ -291,11 +258,11 @@ export default function UserLogsPage() {
                 <TableCell>Time</TableCell>
                 <TableCell>User</TableCell>
                 <TableCell>Action</TableCell>
-                <TableCell>Module</TableCell>
-                <TableCell>Route</TableCell>
-                <TableCell align="right">Status</TableCell>
-                <TableCell>Device</TableCell>
-                <TableCell>Metadata</TableCell>
+                <TableCell>Entity</TableCell>
+                <TableCell>Entity ID</TableCell>
+                <TableCell>Changed fields</TableCell>
+                <TableCell>Old (preview)</TableCell>
+                <TableCell>New (preview)</TableCell>
                 <TableCell align="right">Details</TableCell>
               </TableRow>
             </TableHead>
@@ -304,7 +271,7 @@ export default function UserLogsPage() {
                 <TableRow>
                   <TableCell colSpan={9}>
                     <Typography color="text.secondary" sx={{ py: 2 }}>
-                      No user log rows match this page or filters.
+                      No audit rows match this page or filters.
                     </Typography>
                   </TableCell>
                 </TableRow>
@@ -312,9 +279,7 @@ export default function UserLogsPage() {
                 rows.map((row) => (
                   <TableRow key={row.id} hover>
                     <TableCell sx={{ whiteSpace: "nowrap" }}>
-                      {row.created_at
-                        ? formatTimestamp(row.created_at)
-                        : "—"}
+                      {formatTimestamp(row.timestamp)}
                     </TableCell>
                     <TableCell>
                       {row.user_id !== null && row.user_id !== undefined ? (
@@ -330,57 +295,14 @@ export default function UserLogsPage() {
                         {row.action}
                       </Typography>
                     </TableCell>
-                    <TableCell>{row.module ?? "—"}</TableCell>
-                    <TableCell sx={{ maxWidth: 200 }}>
-                      <Typography
-                        variant="caption"
-                        sx={{
-                          fontFamily: "monospace",
-                          display: "block",
-                          overflow: "hidden",
-                          textOverflow: "ellipsis",
-                        }}
-                        title={
-                          row.method && row.route
-                            ? `${row.method} ${row.route}`
-                            : (row.route ?? undefined)
-                        }
-                      >
-                        {row.method && row.route
-                          ? `${row.method} ${row.route}`
-                          : (row.route ?? "—")}
-                      </Typography>
-                    </TableCell>
-                    <TableCell align="right">
-                      {row.status_code !== null &&
-                      row.status_code !== undefined ? (
-                        row.status_code
-                      ) : (
+                    <TableCell>{row.entity_type}</TableCell>
+                    <TableCell>
+                      {row.entity_id ?? (
                         <Typography variant="body2" color="text.disabled">
                           —
                         </Typography>
                       )}
                     </TableCell>
-                    <TableCell sx={{ maxWidth: 160 }}>
-                      <Typography
-                        variant="caption"
-                        color="text.secondary"
-                        sx={{
-                          display: "block",
-                          overflow: "hidden",
-                          textOverflow: "ellipsis",
-                        }}
-                        title={
-                          [row.device_type, row.browser, row.os]
-                            .filter(Boolean)
-                            .join(" · ") || undefined
-                        }
-                      >
-                        {[row.device_type, row.browser, row.os]
-                          .filter(Boolean)
-                          .join(" · ") || "—"}
-                      </Typography>
-                    </TableCell>
                     <TableCell sx={{ maxWidth: 200 }}>
                       <Typography
                         variant="caption"
@@ -390,9 +312,43 @@ export default function UserLogsPage() {
                           overflow: "hidden",
                           textOverflow: "ellipsis",
                         }}
-                        title={formatJsonPreview(row.metadata, 500)}
+                        title={
+                          row.change_fields?.length
+                            ? row.change_fields.join(", ")
+                            : undefined
+                        }
                       >
-                        {formatJsonPreview(row.metadata)}
+                        {row.change_fields?.length
+                          ? row.change_fields.join(", ")
+                          : "—"}
+                      </Typography>
+                    </TableCell>
+                    <TableCell sx={{ maxWidth: 220 }}>
+                      <Typography
+                        variant="caption"
+                        sx={{
+                          fontFamily: "monospace",
+                          display: "block",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                        }}
+                        title={formatJsonPreview(row.old_values, 500)}
+                      >
+                        {formatJsonPreview(row.old_values)}
+                      </Typography>
+                    </TableCell>
+                    <TableCell sx={{ maxWidth: 220 }}>
+                      <Typography
+                        variant="caption"
+                        sx={{
+                          fontFamily: "monospace",
+                          display: "block",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                        }}
+                        title={formatJsonPreview(row.new_values, 500)}
+                      >
+                        {formatJsonPreview(row.new_values)}
                       </Typography>
                     </TableCell>
                     <TableCell align="right">
@@ -418,13 +374,8 @@ export default function UserLogsPage() {
         maxWidth="md"
         fullWidth
       >
-        <DialogTitle>User log entry</DialogTitle>
+        <DialogTitle>Audit entry</DialogTitle>
         <DialogContent>
-          {detailRow?.description ? (
-            <Typography variant="body2" sx={{ mb: 2, mt: 0.5 }}>
-              {detailRow.description}
-            </Typography>
-          ) : null}
           <Typography
             component="pre"
             sx={{
