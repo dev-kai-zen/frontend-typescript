@@ -10,18 +10,7 @@ import { isRouteNavGroup } from "./route-nav-types";
 import { ROUTES_NAV_TREE } from "./routesConfig";
 import RequireAuth from "./RequireAuth";
 
-// =============================================================================
-// Read this file top → bottom:
-// (1) turn config tree into a flat route list  →  layoutRouteLeaves
-// (2) helpers for route leaves
-// (3) AppRoutes: wire Login, auth shell, layout, and those routes
-// =============================================================================
-
-// -----------------------------------------------------------------------------
-// (1) Config tree → flat list of leaf routes React Router will register
-// -----------------------------------------------------------------------------
-
-/** Groups have `children` we walk into; leaves get appended to `accumulated`. */
+// Get the routes from the routesConfig (Like getting the leaves from the tree)
 function collectLayoutLeavesFromTree(
   items: RouteNavItem[],
   accumulated: RouteNavLeaf[],
@@ -35,20 +24,17 @@ function collectLayoutLeavesFromTree(
   }
 }
 
+// Get the leaves from the tree
 function navTreeToLayoutRouteLeaves(items: RouteNavItem[]): RouteNavLeaf[] {
   const leaves: RouteNavLeaf[] = [];
   collectLayoutLeavesFromTree(items, leaves);
   return leaves;
 }
 
-/** Every URL registered under `<MainLayout />` lives here (after flattening groups). */
+// Routes from the routesConfig (Leaves from the tree)
 const layoutRouteLeaves = navTreeToLayoutRouteLeaves(ROUTES_NAV_TREE);
 
-// -----------------------------------------------------------------------------
-// (2) Helpers for leaf routes — permissions, then mounting the Page
-// -----------------------------------------------------------------------------
-
-/** Uses `permission` / `permissionAny` / `permissionAll` from the leaf’s config + auth store. */
+// Check if the user has access to the leaf (route)
 function canViewerOpenLeaf(
   permissionCodes: readonly string[],
   roleName: string | null,
@@ -57,10 +43,7 @@ function canViewerOpenLeaf(
   return viewerMayAccessNavItem(permissionCodes, roleName, leaf);
 }
 
-/**
- * Outlet for each leaf in `ROUTES_NAV_TREE`: check access, otherwise restricted screen.
- * Order inside: read session → gate → render `Page`.
- */
+// Outlet for each leaf in `ROUTES_NAV_TREE`: check access, otherwise restricted screen.
 function RouteLeafOutlet({ leaf }: { leaf: RouteNavLeaf }) {
   const permissionCodes = useAuthStore((s) => s.user?.permissions ?? []);
   const roleName = useAuthStore((s) => s.user?.role?.role_name ?? null);
@@ -73,9 +56,6 @@ function RouteLeafOutlet({ leaf }: { leaf: RouteNavLeaf }) {
   return <Page />;
 }
 
-// -----------------------------------------------------------------------------
-// (3) App route tree — public login, authenticated shell, configured layout routes
-// -----------------------------------------------------------------------------
 
 export default function AppRoutes() {
   return (
