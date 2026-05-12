@@ -32,10 +32,10 @@ import {
   type RouteNavItem,
 } from "../routes/route-nav";
 
-import { APP_SHELL_DRAWER_WIDTH } from "./layout-constants";
-
 export type AppSidebarProps = {
   open: boolean;
+  /** Drawer paper width in px (must match shell layout). */
+  drawerWidth: number;
   variant: "permanent" | "persistent" | "temporary";
   onClose: () => void;
   onNavigate: () => void;
@@ -77,6 +77,7 @@ const SIDEBAR_ITEM_SX: SxProps<Theme> = {
 
 export default function AppSidebar({
   open,
+  drawerWidth,
   variant,
   onClose,
   onNavigate,
@@ -184,11 +185,25 @@ export default function AppSidebar({
       anchor="left"
       open={open}
       onClose={onClose}
+      slotProps={{
+        transition: {
+          easing: {
+            enter: theme.transitions.easing.sharp,
+            exit: theme.transitions.easing.sharp,
+          },
+        },
+      }}
       sx={{
-        width: variant === "persistent" ? APP_SHELL_DRAWER_WIDTH : 0,
+        width:
+          variant === "persistent"
+            ? open
+              ? drawerWidth
+              : 0
+            : 0,
         flexShrink: 0,
+        overflowX: variant === "persistent" ? "hidden" : undefined,
         transition: (t) =>
-          t.transitions.create(["width", "transform"], {
+          t.transitions.create("width", {
             easing: t.transitions.easing.sharp,
             duration: open
               ? t.transitions.duration.enteringScreen
@@ -198,7 +213,7 @@ export default function AppSidebar({
           boxSizing: "border-box",
           display: "flex",
           flexDirection: "column",
-          width: APP_SHELL_DRAWER_WIDTH,
+          width: drawerWidth,
           backgroundColor: theme.palette.sidebarBackground,
           color: theme.palette.sidebarForeground,
           boxShadow:

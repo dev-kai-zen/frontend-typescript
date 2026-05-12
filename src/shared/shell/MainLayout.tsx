@@ -18,11 +18,8 @@ export default function MainLayout() {
   const [mobileOpen, setMobileOpen] = useState(false);
 
   const open = isMobile ? mobileOpen : desktopOpen;
-  const drawerVariant = isMobile
-    ? "temporary"
-    : open
-      ? "persistent"
-      : "temporary";
+  /** Desktop stays `persistent` only (matches wellness AppLayout — avoids temporary↔persistent remount). */
+  const drawerVariant = isMobile ? "temporary" : "persistent";
 
   const toggleDrawer = useCallback(() => {
     if (isMobile) {
@@ -47,11 +44,13 @@ export default function MainLayout() {
       <AppHeader
         open={open}
         onToggleDrawer={toggleDrawer}
+        drawerWidth={APP_SHELL_DRAWER_WIDTH}
         isMobile={isMobile}
       />
 
       <AppSidebar
         open={open}
+        drawerWidth={APP_SHELL_DRAWER_WIDTH}
         variant={drawerVariant}
         onClose={closeMobileDrawer}
         onNavigate={closeMobileDrawer}

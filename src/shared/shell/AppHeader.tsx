@@ -22,8 +22,6 @@ import { logoutOnServer } from "../../modules/auth/authApi";
 import { useAuthStore } from "../../modules/auth/auth-store";
 import { useThemeMode } from "../theme/AppThemeProvider";
 
-import { APP_SHELL_DRAWER_WIDTH } from "./layout-constants";
-
 function ThemeToggleButton() {
   const { mode, toggleColorMode } = useThemeMode();
   return (
@@ -109,12 +107,15 @@ function UserAccountMenu({ isMobile }: { isMobile: boolean }) {
 export type AppHeaderProps = {
   open: boolean;
   onToggleDrawer: () => void;
+  /** Sidebar width in px — shell transitions stay aligned with `AppSidebar`. */
+  drawerWidth: number;
   isMobile: boolean;
 };
 
 export default function AppHeader({
   open,
   onToggleDrawer,
+  drawerWidth,
   isMobile,
 }: AppHeaderProps) {
   return (
@@ -126,10 +127,10 @@ export default function AppHeader({
         color: "primary.main",
         width:
           !isMobile && open
-            ? `calc(100% - ${APP_SHELL_DRAWER_WIDTH}px)`
+            ? `calc(100% - ${drawerWidth}px)`
             : "100%",
         transition: (innerTheme) =>
-          innerTheme.transitions.create(["width", "transform"], {
+          innerTheme.transitions.create("width", {
             easing: innerTheme.transitions.easing.sharp,
             duration:
               !isMobile && open
