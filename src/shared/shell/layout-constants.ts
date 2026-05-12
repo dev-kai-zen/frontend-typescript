@@ -1,1 +1,1 @@
-export const APP_SHELL_DRAWER_WIDTH = 240;
+export const APP_SHELL_DRAWER_WIDTH = 350;
