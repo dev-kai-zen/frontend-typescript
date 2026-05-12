@@ -1,7 +1,7 @@
 import { create } from "zustand";
 
 import { fetchCurrentUser } from "./authApi";
-import { authTokenRef } from "./httpClient";
+import { authTokenRef } from "../../shared/api/api-client";
 import { postRefresh } from "./refresh-api";
 
 import type { AuthUser } from "./authApi";

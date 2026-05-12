@@ -1,17 +1,11 @@
 import axios from "axios";
 
 import { getEnv } from "../../shared/config/env";
-
-/** Same envelope as other backend JSON responses. */
-export type ApiResult<T> = {
-  success: boolean;
-  message?: string;
-  data?: T;
-};
+import type { ApiResult } from "../../shared/types/api-result.types";
 
 /**
- * Uses a plain Axios instance (not `httpClient`) so a 401 on `/me` does not
- * trigger an infinite refresh loop.
+ * Uses plain Axios (not `apiClient`) so a 401 does not trigger an infinite
+ * refresh loop.
  */
 export async function postRefresh(): Promise<
   ApiResult<{ accessToken: string }>

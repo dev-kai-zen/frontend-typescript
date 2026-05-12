@@ -1,23 +1,27 @@
 import type { AxiosError, InternalAxiosRequestConfig } from "axios";
 import axios from "axios";
 
-import { getEnv } from "../../shared/config/env";
-import { postRefresh } from "./refresh-api";
+import { getEnv } from "../config/env";
+import { postRefresh } from "../../modules/auth/refresh-api";
 
 /**
- * Updated by the auth store (and the refresh interceptor below) so each request
+ * Kept in sync by the auth store and the refresh interceptor so each request
  * can send `Authorization: Bearer …`.
  */
 export const authTokenRef = { current: null as string | null };
 
 const { apiBaseUrl } = getEnv();
 
-const httpClient = axios.create({
+/**
+ * Standard HTTP client for authenticated API calls: attaches the access token
+ * and retries once after a cookie-based refresh when the server returns 401.
+ */
+export const apiClient = axios.create({
   baseURL: apiBaseUrl || undefined,
   withCredentials: true,
 });
 
-httpClient.interceptors.request.use((config) => {
+apiClient.interceptors.request.use((config) => {
   const token = authTokenRef.current;
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
@@ -25,7 +29,7 @@ httpClient.interceptors.request.use((config) => {
   return config;
 });
 
-httpClient.interceptors.response.use(
+apiClient.interceptors.response.use(
   (response) => response.data,
   async (error: AxiosError) => {
     const original = error.config as
@@ -56,15 +60,15 @@ httpClient.interceptors.response.use(
         throw new Error("Refresh failed");
       }
       authTokenRef.current = body.data.accessToken;
-      const { useAuthStore } = await import("./authStore");
+      const { useAuthStore } = await import("../../modules/auth/authStore");
       useAuthStore.getState().setAccessToken(body.data.accessToken);
-      return httpClient.request(original);
+      return apiClient.request(original);
     } catch {
-      const { useAuthStore } = await import("./authStore");
+      const { useAuthStore } = await import("../../modules/auth/authStore");
       useAuthStore.getState().clearSession();
       return Promise.reject(error);
     }
   },
 );
 
-export default httpClient;
+export default apiClient;

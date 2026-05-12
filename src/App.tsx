@@ -2,7 +2,7 @@ import { GoogleOAuthProvider } from "@react-oauth/google";
 import { BrowserRouter } from "react-router-dom";
 
 import { AuthBootstrap } from "./modules/auth/AuthBootstrap";
-import AppRoutes from "./shared/routes";
+import AppRoutes from "./shared/routes/AppRoutes";
 import { getEnv } from "./shared/config/env";
 import { AppThemeProvider } from "./shared/theme/AppThemeProvider";
 

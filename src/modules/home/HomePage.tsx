@@ -6,12 +6,17 @@ export default function HomePage() {
       <Typography variant="h5" gutterBottom>
         Home
       </Typography>
-      <Typography color="text.secondary">
-        You are signed in. Add new screens under <code>src/modules/</code>,
-        register a <code>&lt;Route&gt;</code> in{" "}
-        <code>src/shared/routes.tsx</code>, and add a link in{" "}
-        <code>SIDEBAR_LINKS</code> inside{" "}
-        <code>src/shared/shell/MainLayout.tsx</code>.
+      <Typography color="text.secondary" component="div">
+        <p>You are signed in.</p>
+        <p>
+          Register screens with <code>*.routes.tsx</code>,{" "}
+          <code>{'lazy(() => import("./Page"))'}</code>, merge slices into{" "}
+          <code>routes/app-route-config.tsx</code>, and optional{" "}
+          <code>children</code> for nested areas (example: Administration → User
+          Management at <code>/administration/user-management</code>). In
+          development, watch the browser console for duplicate route key / resolved
+          path warnings.
+        </p>
       </Typography>
     </div>
   );

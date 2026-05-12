@@ -11,8 +11,8 @@ import { GoogleLogin, type CredentialResponse } from "@react-oauth/google";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-import { loginWithGoogle } from "../auth/authApi";
-import { useAuthStore } from "../auth/authStore";
+import { loginWithGoogle } from "./authApi";
+import { useAuthStore } from "./authStore";
 import { getEnv } from "../../shared/config/env";
 
 /**
