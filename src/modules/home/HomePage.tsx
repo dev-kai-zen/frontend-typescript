@@ -9,13 +9,14 @@ export default function HomePage() {
       <Typography color="text.secondary" component="div">
         <p>You are signed in.</p>
         <p>
-          Register screens with <code>*.routes.tsx</code>,{" "}
-          <code>{'lazy(() => import("./Page"))'}</code>, merge slices into{" "}
-          <code>routes/app-route-config.tsx</code>, and optional{" "}
-          <code>children</code> for nested areas (example: Administration → User
-          Management at <code>/administration/user-management</code>). In
-          development, watch the browser console for duplicate route key / resolved
-          path warnings.
+          Authenticated URLs and sidebar entries are defined in{" "}
+          <code>shared/routes/routesConfig.tsx</code>. How they are turned into
+          routes and drawer rows lives in <code>shared/routes/route-nav.ts</code>
+          . Types are in <code>shared/routes/route-nav-types.ts</code>. Use{" "}
+          <code>hidden: true</code> on a leaf keeps the URL but skips the drawer.
+          Optional <code>permission</code>, <code>permissionAny</code>, or{" "}
+          <code>permissionAll</code> (see <code>route-nav-types.ts</code>) are enforced
+          in the router and sidebar via <code>route-permission.ts</code>.
         </p>
       </Typography>
     </div>

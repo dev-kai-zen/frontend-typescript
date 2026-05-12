@@ -50,7 +50,7 @@ export const appPalette = {
     dark: "rgba(255, 255, 255, 0.8)",
   },
   sidebarItemHover: {
-    light: "rgb(237, 227, 217)",
+    light: "rgba(255, 255, 255, 0.08)",
     dark: "rgba(255, 255, 255, 0.08)",
   },
   actionHover: {
