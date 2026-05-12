@@ -127,7 +127,9 @@ export default function AppSidebar({
             aria-current={leafActive ? "page" : undefined}
           >
             <ListItemIcon>
-              <IconComponent sx={{ color: "inherit" }} />
+              {IconComponent ? (
+                <IconComponent sx={{ color: "inherit" }} />
+              ) : null}
             </ListItemIcon>
             <ListItemText primary={item.label} />
           </ListItemButton>
