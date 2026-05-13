@@ -14,20 +14,20 @@ import {
   DialogTitle,
   IconButton,
   LinearProgress,
-  MenuItem,
   Stack,
   Table,
   TableBody,
   TableCell,
   TableContainer,
   TableHead,
+  TablePagination,
   TableRow,
   TextField,
   Tooltip,
   Typography,
 } from "@mui/material";
 import Grid from "@mui/material/Grid";
-import { useEffect, useMemo, useState } from "react";
+import { type ChangeEvent, useEffect, useMemo, useState } from "react";
 
 import { RbacAdminSection } from "../rbac/components/RbacAdminSection";
 import { RbacStatCard } from "../rbac/components/RbacStatCard";
@@ -51,8 +51,6 @@ function formatTimestamp(iso: string): string {
   return Number.isNaN(d.getTime()) ? iso : d.toLocaleString();
 }
 
-const PAGE_SIZE_OPTIONS = [25, 50, 100, 200] as const;
-
 /**
  * Administration — audit trail (read-only list from `/api/v1/audit-logs`).
  *
@@ -72,12 +70,12 @@ export default function AuditLogsPage() {
   const [appliedAction, setAppliedAction] = useState("");
   const [appliedEntityType, setAppliedEntityType] = useState("");
 
-  const [pageSize, setPageSize] = useState<number>(50);
-  const [pageIndex, setPageIndex] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [page, setPage] = useState(0);
 
   const [detailRow, setDetailRow] = useState<AuditLogDto | null>(null);
 
-  const offset = pageIndex * pageSize;
+  const offset = page * rowsPerPage;
 
   useEffect(() => {
     let cancelled = false;
@@ -91,11 +89,14 @@ export default function AuditLogsPage() {
         const list = await fetchAuditLogs({
           action: appliedAction.trim() || undefined,
           entity_type: appliedEntityType.trim() || undefined,
-          limit: pageSize,
+          limit: rowsPerPage,
           offset,
         });
         if (cancelled) return;
         setRows(list);
+        if (list.length === 0 && offset > 0) {
+          setPage((p) => Math.max(0, p - 1));
+        }
       } catch (err) {
         if (!cancelled) {
           setError(getRbacApiErrorMessage(err, "Failed to load audit logs"));
@@ -112,12 +113,25 @@ export default function AuditLogsPage() {
     refreshNonce,
     appliedAction,
     appliedEntityType,
-    pageSize,
+    rowsPerPage,
     offset,
   ]);
 
-  const canGoPrev = pageIndex > 0;
-  const canGoNext = rows.length === pageSize;
+  const tableCount =
+    rows.length === 0 && !loading
+      ? 0
+      : rows.length < rowsPerPage
+        ? page * rowsPerPage + rows.length
+        : page * rowsPerPage + rowsPerPage + 1;
+
+  const handleChangePage = (_: unknown, newPage: number) => {
+    setPage(newPage);
+  };
+
+  const handleChangeRowsPerPage = (event: ChangeEvent<HTMLInputElement>) => {
+    setRowsPerPage(Number.parseInt(event.target.value, 10));
+    setPage(0);
+  };
 
   const stats = useMemo(() => {
     const pageRows = rows.length;
@@ -162,7 +176,7 @@ export default function AuditLogsPage() {
   const applyFilters = () => {
     setAppliedAction(draftAction.trim());
     setAppliedEntityType(draftEntityType.trim());
-    setPageIndex(0);
+    setPage(0);
     setError(null);
   };
 
@@ -401,63 +415,20 @@ export default function AuditLogsPage() {
           </Table>
         </TableContainer>
 
-        <Box
-          sx={{
-            px: 2,
-            py: 1.5,
-            borderTop: 1,
-            borderColor: "divider",
-            display: "flex",
-            flexWrap: "wrap",
-            alignItems: "center",
-            justifyContent: "space-between",
-            gap: 2,
-          }}
-        >
-          <Typography variant="body2" color="text.secondary">
-            Page {pageIndex + 1}
-            {rows.length === 0 && !loading ? " · empty" : ""}
-          </Typography>
-          <Stack
-            direction="row"
-            spacing={2}
-            sx={{ flexWrap: "wrap", alignItems: "center" }}
-          >
-            <TextField
-              select
-              label="Rows per page"
-              size="small"
-              value={pageSize}
-              onChange={(e) => {
-                setPageSize(Number(e.target.value));
-                setPageIndex(0);
-              }}
-              sx={{ minWidth: 140 }}
-            >
-              {PAGE_SIZE_OPTIONS.map((n) => (
-                <MenuItem key={n} value={n}>
-                  {n}
-                </MenuItem>
-              ))}
-            </TextField>
-            <Stack direction="row" spacing={1}>
-              <Button
-                variant="outlined"
-                disabled={!canGoPrev || loading}
-                onClick={() => setPageIndex((p) => Math.max(0, p - 1))}
-              >
-                Previous
-              </Button>
-              <Button
-                variant="outlined"
-                disabled={!canGoNext || loading}
-                onClick={() => setPageIndex((p) => p + 1)}
-              >
-                Next
-              </Button>
-            </Stack>
-          </Stack>
-        </Box>
+        <TablePagination
+          component="div"
+          rowsPerPageOptions={[5, 10, 25, 50]}
+          count={tableCount}
+          rowsPerPage={rowsPerPage}
+          page={page}
+          onPageChange={handleChangePage}
+          onRowsPerPageChange={handleChangeRowsPerPage}
+          labelDisplayedRows={({ from, to, count }) =>
+            rows.length === rowsPerPage
+              ? `${from}–${to} of many`
+              : `${from}–${to} of ${count}`
+          }
+        />
       </RbacAdminSection>
 
       <Dialog
