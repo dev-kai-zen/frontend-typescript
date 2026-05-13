@@ -1,4 +1,6 @@
 import AddIcon from "@mui/icons-material/Add";
+import BlockIcon from "@mui/icons-material/Block";
+import CheckCircleOutlinedIcon from "@mui/icons-material/CheckCircleOutlined";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
 import GridOnIcon from "@mui/icons-material/GridOn";
@@ -10,6 +12,7 @@ import {
   Alert,
   Box,
   Button,
+  Chip,
   IconButton,
   Dialog,
   DialogActions,
@@ -73,6 +76,7 @@ export default function RbacRolesPage() {
   const [editing, setEditing] = useState<RbacRoleDto | null>(null);
 
   const [deleteTarget, setDeleteTarget] = useState<RbacRoleDto | null>(null);
+  const [togglingRoleId, setTogglingRoleId] = useState<number | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -176,6 +180,20 @@ export default function RbacRolesPage() {
       setRefreshNonce((n) => n + 1);
     } catch (err) {
       setError(getRbacApiErrorMessage(err, "Failed to delete role"));
+    }
+  };
+
+  const toggleRoleActive = async (row: RbacRoleDto) => {
+    const nextActive = !(row.is_active ?? true);
+    setError(null);
+    setTogglingRoleId(row.id);
+    try {
+      await updateRbacRole(row.id, { isActive: nextActive });
+      setRefreshNonce((n) => n + 1);
+    } catch (err) {
+      setError(getRbacApiErrorMessage(err, "Failed to update role status"));
+    } finally {
+      setTogglingRoleId(null);
     }
   };
 
@@ -304,6 +322,7 @@ export default function RbacRolesPage() {
               >
                 <TableCell sx={{ fontWeight: 700 }}>Role</TableCell>
                 <TableCell sx={{ fontWeight: 700 }}>Description</TableCell>
+                <TableCell sx={{ fontWeight: 700 }}>Status</TableCell>
                 <TableCell sx={{ fontWeight: 700 }}>Created</TableCell>
                 <TableCell sx={{ fontWeight: 700 }} align="right">
                   Actions
@@ -313,7 +332,7 @@ export default function RbacRolesPage() {
             <TableBody>
               {pageSlice.length === 0 && !loading ? (
                 <TableRow>
-                  <TableCell colSpan={4}>
+                  <TableCell colSpan={5}>
                     <Typography color="text.secondary" sx={{ py: 3 }}>
                       No roles yet. Create a role here, then map permissions in the
                       matrix.
@@ -321,7 +340,9 @@ export default function RbacRolesPage() {
                   </TableCell>
                 </TableRow>
               ) : (
-                pageSlice.map((row) => (
+                pageSlice.map((row) => {
+                  const isActive = row.is_active ?? true;
+                  return (
                   <TableRow key={row.id} hover>
                     <TableCell>
                       <Stack direction="row" spacing={1.5} sx={{ alignItems: "center" }}>
@@ -358,6 +379,14 @@ export default function RbacRolesPage() {
                         </Typography>
                       )}
                     </TableCell>
+                    <TableCell width="10%">
+                      <Chip
+                        size="small"
+                        label={isActive ? "Active" : "Inactive"}
+                        color={isActive ? "success" : "default"}
+                        variant={isActive ? "filled" : "outlined"}
+                      />
+                    </TableCell>
                     <TableCell width="14%">
                       <Typography variant="body2" color="text.secondary">
                         {row.created_at
@@ -366,6 +395,24 @@ export default function RbacRolesPage() {
                       </Typography>
                     </TableCell>
                     <TableCell align="right">
+                      <Tooltip
+                        title={isActive ? "Disable role" : "Enable role"}
+                      >
+                        <span>
+                          <IconButton
+                            size="small"
+                            color={isActive ? "warning" : "success"}
+                            disabled={togglingRoleId === row.id}
+                            onClick={() => void toggleRoleActive(row)}
+                          >
+                            {isActive ? (
+                              <BlockIcon fontSize="small" />
+                            ) : (
+                              <CheckCircleOutlinedIcon fontSize="small" />
+                            )}
+                          </IconButton>
+                        </span>
+                      </Tooltip>
                       <Tooltip title="Edit role">
                         <IconButton
                           size="small"
@@ -396,7 +443,8 @@ export default function RbacRolesPage() {
                       </Tooltip>
                     </TableCell>
                   </TableRow>
-                ))
+                  );
+                })
               )}
             </TableBody>
           </Table>

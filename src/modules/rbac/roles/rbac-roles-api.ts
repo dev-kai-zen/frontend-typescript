@@ -41,6 +41,9 @@ export async function updateRbacRole(
     body.roleDescription =
       payload.roleDescription === "" ? null : payload.roleDescription;
   }
+  if (payload.isActive !== undefined) {
+    body.isActive = payload.isActive;
+  }
   return (await apiClient.patch(`/api/v1/rbac/roles/${id}`, body)) as RbacRoleDto;
 }
 

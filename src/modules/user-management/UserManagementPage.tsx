@@ -367,9 +367,7 @@ export default function UserManagementPage() {
                             >
                               {row.email}
                             </Typography>
-                            <Typography variant="caption" color="text.secondary">
-                              ID {row.id}
-                            </Typography>
+
                           </Box>
                         </Stack>
                       </TableCell>

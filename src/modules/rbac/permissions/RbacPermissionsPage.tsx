@@ -1,5 +1,7 @@
 import AddIcon from "@mui/icons-material/Add";
+import BlockIcon from "@mui/icons-material/Block";
 import CategoryIcon from "@mui/icons-material/Category";
+import CheckCircleOutlinedIcon from "@mui/icons-material/CheckCircleOutlined";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
 import FilterListIcon from "@mui/icons-material/FilterList";
@@ -16,6 +18,7 @@ import {
   DialogContent,
   DialogTitle,
   FormControl,
+  IconButton,
   InputAdornment,
   InputLabel,
   LinearProgress,
@@ -31,6 +34,7 @@ import {
   TablePagination,
   TableRow,
   TextField,
+  Tooltip,
   Typography,
 } from "@mui/material";
 import Grid from "@mui/material/Grid";
@@ -82,6 +86,9 @@ export default function RbacPermissionsPage() {
   const [deleteTarget, setDeleteTarget] = useState<RbacPermissionDto | null>(
     null,
   );
+  const [togglingPermissionId, setTogglingPermissionId] = useState<
+    number | null
+  >(null);
 
   /** Bumps to re-run the load effect without changing the filter (Refresh button). */
   const [refreshNonce, setRefreshNonce] = useState(0);
@@ -224,6 +231,22 @@ export default function RbacPermissionsPage() {
       setRefreshNonce((n) => n + 1);
     } catch (err) {
       setError(getRbacApiErrorMessage(err, "Failed to delete permission"));
+    }
+  };
+
+  const togglePermissionActive = async (row: RbacPermissionDto) => {
+    const nextActive = !(row.is_active ?? true);
+    setError(null);
+    setTogglingPermissionId(row.id);
+    try {
+      await updateRbacPermission(row.id, { isActive: nextActive });
+      setRefreshNonce((n) => n + 1);
+    } catch (err) {
+      setError(
+        getRbacApiErrorMessage(err, "Failed to update permission status"),
+      );
+    } finally {
+      setTogglingPermissionId(null);
     }
   };
 
@@ -396,6 +419,7 @@ export default function RbacPermissionsPage() {
                 <TableCell sx={{ fontWeight: 700 }}>Code</TableCell>
                 <TableCell sx={{ fontWeight: 700 }}>Description</TableCell>
                 <TableCell sx={{ fontWeight: 700 }}>Category</TableCell>
+                <TableCell sx={{ fontWeight: 700 }}>Status</TableCell>
                 <TableCell sx={{ fontWeight: 700 }} align="right">
                   Actions
                 </TableCell>
@@ -404,14 +428,16 @@ export default function RbacPermissionsPage() {
             <TableBody>
               {pageSlice.length === 0 && !loading ? (
                 <TableRow>
-                  <TableCell colSpan={5}>
+                  <TableCell colSpan={6}>
                     <Typography color="text.secondary" sx={{ py: 3 }}>
                       No permissions match this filter.
                     </Typography>
                   </TableCell>
                 </TableRow>
               ) : (
-                pageSlice.map((row) => (
+                pageSlice.map((row) => {
+                  const isActive = row.is_active ?? true;
+                  return (
                   <TableRow key={row.id} hover>
                     <TableCell>{row.id}</TableCell>
                     <TableCell>
@@ -447,25 +473,55 @@ export default function RbacPermissionsPage() {
                         />
                       )}
                     </TableCell>
+                    <TableCell width="10%">
+                      <Chip
+                        size="small"
+                        label={isActive ? "Active" : "Inactive"}
+                        color={isActive ? "success" : "default"}
+                        variant={isActive ? "filled" : "outlined"}
+                      />
+                    </TableCell>
                     <TableCell align="right">
-                      <Button
-                        size="small"
-                        startIcon={<EditIcon />}
-                        onClick={() => openEdit(row)}
+                      <Tooltip
+                        title={isActive ? "Disable permission" : "Enable permission"}
                       >
-                        Edit
-                      </Button>
-                      <Button
-                        size="small"
-                        color="error"
-                        startIcon={<DeleteIcon />}
-                        onClick={() => setDeleteTarget(row)}
-                      >
-                        Delete
-                      </Button>
+                        <span>
+                          <IconButton
+                            size="small"
+                            color={isActive ? "warning" : "success"}
+                            disabled={togglingPermissionId === row.id}
+                            onClick={() => void togglePermissionActive(row)}
+                          >
+                            {isActive ? (
+                              <BlockIcon fontSize="small" />
+                            ) : (
+                              <CheckCircleOutlinedIcon fontSize="small" />
+                            )}
+                          </IconButton>
+                        </span>
+                      </Tooltip>
+                      <Tooltip title="Edit permission">
+                        <IconButton
+                          size="small"
+                          color="primary"
+                          onClick={() => openEdit(row)}
+                        >
+                          <EditIcon fontSize="small" />
+                        </IconButton>
+                      </Tooltip>
+                      <Tooltip title="Delete permission">
+                        <IconButton
+                          size="small"
+                          color="error"
+                          onClick={() => setDeleteTarget(row)}
+                        >
+                          <DeleteIcon fontSize="small" />
+                        </IconButton>
+                      </Tooltip>
                     </TableCell>
                   </TableRow>
-                ))
+                  );
+                })
               )}
             </TableBody>
           </Table>

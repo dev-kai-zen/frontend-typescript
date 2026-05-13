@@ -51,6 +51,7 @@ export async function updateRbacPermission(
       permissionDescription: payload.permissionDescription,
     }),
     ...(payload.categoryId !== undefined && { categoryId: payload.categoryId }),
+    ...(payload.isActive !== undefined && { isActive: payload.isActive }),
   })) as RbacPermissionDto;
 }
 
