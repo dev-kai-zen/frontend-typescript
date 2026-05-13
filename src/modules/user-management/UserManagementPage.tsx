@@ -2,30 +2,41 @@ import BlockIcon from "@mui/icons-material/Block";
 import CheckCircleOutlinedIcon from "@mui/icons-material/CheckCircleOutlined";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
+import PersonOffIcon from "@mui/icons-material/PersonOff";
 import RefreshIcon from "@mui/icons-material/Refresh";
+import SearchIcon from "@mui/icons-material/Search";
+import SupervisorAccountIcon from "@mui/icons-material/SupervisorAccount";
 import VpnKeyIcon from "@mui/icons-material/VpnKey";
 import {
   Alert,
+  Avatar,
   Box,
   Button,
-  Card,
-  CardContent,
   Chip,
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
+  IconButton,
+  InputAdornment,
   LinearProgress,
   Stack,
   Table,
   TableBody,
   TableCell,
+  TableContainer,
   TableHead,
+  TablePagination,
   TableRow,
+  TextField,
+  Tooltip,
   Typography,
 } from "@mui/material";
-import { useEffect, useState } from "react";
+import Grid from "@mui/material/Grid";
+import { useEffect, useMemo, useState } from "react";
 
+import { RbacAdminSection } from "../rbac/components/RbacAdminSection";
+import { RbacStatCard } from "../rbac/components/RbacStatCard";
 import { getRbacApiErrorMessage } from "../rbac/permissions/rbac-api-errors";
 import { fetchRbacRoles } from "../rbac/roles/rbac-roles-api";
 import {
@@ -42,10 +53,12 @@ import { fetchUserRoles } from "./user-roles-api";
  * Administration — users: list, edit, activate/deactivate, RBAC roles, delete.
  *
  * **For juniors**
- * - `../users/users-api.ts` — REST for users
+ * - `users-api.ts` — REST for users
  * - `user-roles-api.ts` — PUT replaces all roles for a user
  * - `UserEditFormDialog.tsx` — email / name
  * - `UserRolesDialog.tsx` — checkbox matrix + save
+ *
+ * Layout aligns with RBAC admin screens (stats row, bordered panel, search + table).
  */
 export default function UserManagementPage() {
   const [rows, setRows] = useState<UserListItemDto[]>([]);
@@ -56,6 +69,10 @@ export default function UserManagementPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [refreshNonce, setRefreshNonce] = useState(0);
+
+  const [searchTerm, setSearchTerm] = useState("");
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
 
   const [rolesTarget, setRolesTarget] = useState<UserListItemDto | null>(null);
   const [editTarget, setEditTarget] = useState<UserListItemDto | null>(null);
@@ -111,6 +128,37 @@ export default function UserManagementPage() {
     };
   }, [refreshNonce]);
 
+  const stats = useMemo(() => {
+    const total = rows.length;
+    const active = rows.filter((r) => r.is_active).length;
+    const inactive = total - active;
+    let withRoles = 0;
+    for (const r of rows) {
+      if ((rolesByUserId.get(r.id)?.length ?? 0) > 0) withRoles += 1;
+    }
+    return { total, active, inactive, withRoles };
+  }, [rows, rolesByUserId]);
+
+  const filteredRows = useMemo(() => {
+    const q = searchTerm.trim().toLowerCase();
+    if (!q) return rows;
+    return rows.filter((row) => {
+      const roleStr =
+        rolesByUserId.get(row.id)?.join(" ").toLowerCase() ?? "";
+      return (
+        row.email.toLowerCase().includes(q) ||
+        (row.full_name?.toLowerCase().includes(q) ?? false) ||
+        String(row.id).includes(q) ||
+        roleStr.includes(q)
+      );
+    });
+  }, [rows, rolesByUserId, searchTerm]);
+
+  const pageSlice = filteredRows.slice(
+    page * rowsPerPage,
+    page * rowsPerPage + rowsPerPage,
+  );
+
   const handleEditSubmit = async (values: {
     email: string;
     fullName: string | null;
@@ -154,35 +202,26 @@ export default function UserManagementPage() {
     }
   };
 
+  const handleChangePage = (_: unknown, newPage: number) => {
+    setPage(newPage);
+  };
+
+  const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setRowsPerPage(Number.parseInt(event.target.value, 10));
+    setPage(0);
+  };
+
   return (
-    <Stack spacing={2}>
-      <Box
-        sx={{
-          display: "flex",
-          flexWrap: "wrap",
-          alignItems: "center",
-          justifyContent: "space-between",
-          gap: 2,
-        }}
-      >
-        <div>
-          <Typography variant="h5" component="h1" gutterBottom>
-            User management
-          </Typography>
-          <Typography variant="body2" color="text.secondary">
-            Edit profiles, deactivate accounts, assign RBAC roles, or remove
-            users. Deactivate sets <code>is_active</code>; delete calls the
-            server remove endpoint.
-          </Typography>
-        </div>
-        <Button
-          variant="outlined"
-          startIcon={<RefreshIcon />}
-          onClick={() => setRefreshNonce((n) => n + 1)}
-          disabled={loading}
-        >
-          Refresh
-        </Button>
+    <Stack spacing={3}>
+      <Box>
+        <Typography variant="h4" component="h1" sx={{ fontWeight: 700 }} gutterBottom>
+          User management
+        </Typography>
+        <Typography variant="body1" color="text.secondary">
+          Edit profiles, deactivate accounts, assign RBAC roles, or remove users.
+          Deactivate sets <code>is_active</code>; delete calls the server remove
+          endpoint.
+        </Typography>
       </Box>
 
       {error ? (
@@ -193,51 +232,155 @@ export default function UserManagementPage() {
 
       {loading ? <LinearProgress /> : null}
 
-      <Card variant="outlined">
-        <CardContent sx={{ p: 0, "&:last-child": { pb: 0 } }}>
-          <Table size="small">
+      <Grid container spacing={2}>
+        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+          <RbacStatCard
+            label="Total users"
+            value={String(stats.total)}
+            tone="primary"
+            icon={<SupervisorAccountIcon />}
+          />
+        </Grid>
+        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+          <RbacStatCard
+            label="Active"
+            value={String(stats.active)}
+            tone="success"
+            icon={<CheckCircleOutlinedIcon />}
+          />
+        </Grid>
+        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+          <RbacStatCard
+            label="Inactive"
+            value={String(stats.inactive)}
+            tone="warning"
+            icon={<PersonOffIcon />}
+          />
+        </Grid>
+        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+          <RbacStatCard
+            label="With RBAC roles"
+            value={String(stats.withRoles)}
+            tone="info"
+            icon={<VpnKeyIcon />}
+          />
+        </Grid>
+      </Grid>
+
+      <RbacAdminSection>
+        <Box sx={{ p: 2, borderBottom: 1, borderColor: "divider" }}>
+          <Stack
+            direction={{ xs: "column", sm: "row" }}
+            spacing={2}
+            sx={{
+              alignItems: { xs: "stretch", sm: "center" },
+              justifyContent: "space-between",
+            }}
+          >
+            <TextField
+              size="small"
+              placeholder="Search by email, name, id, or role…"
+              value={searchTerm}
+              onChange={(e) => {
+                setSearchTerm(e.target.value);
+                setPage(0);
+              }}
+              slotProps={{
+                input: {
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <SearchIcon fontSize="small" />
+                    </InputAdornment>
+                  ),
+                },
+              }}
+              sx={{ minWidth: { sm: 280 }, flex: { sm: 1 } }}
+            />
+            <Button
+              variant="outlined"
+              startIcon={<RefreshIcon />}
+              onClick={() => setRefreshNonce((n) => n + 1)}
+              disabled={loading}
+              sx={{ flexShrink: 0 }}
+            >
+              Refresh
+            </Button>
+          </Stack>
+        </Box>
+
+        <TableContainer>
+          <Table size="medium">
             <TableHead>
-              <TableRow>
-                <TableCell>ID</TableCell>
-                <TableCell>Email</TableCell>
-                <TableCell>Name</TableCell>
-                <TableCell>Role(s)</TableCell>
-                <TableCell>Status</TableCell>
-                <TableCell align="right">Actions</TableCell>
+              <TableRow
+                sx={(theme) => ({
+                  bgcolor:
+                    theme.palette.mode === "dark"
+                      ? "rgba(255,255,255,0.05)"
+                      : "rgba(37, 52, 63, 0.06)",
+                })}
+              >
+                <TableCell sx={{ fontWeight: 700 }}>User</TableCell>
+                <TableCell sx={{ fontWeight: 700 }}>Name</TableCell>
+                <TableCell sx={{ fontWeight: 700 }}>Role(s)</TableCell>
+                <TableCell sx={{ fontWeight: 700 }}>Status</TableCell>
+                <TableCell sx={{ fontWeight: 700 }} align="right">
+                  Actions
+                </TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
-              {rows.length === 0 && !loading ? (
+              {pageSlice.length === 0 && !loading ? (
                 <TableRow>
-                  <TableCell colSpan={6}>
-                    <Typography color="text.secondary" sx={{ py: 2 }}>
-                      No users returned by the API.
+                  <TableCell colSpan={5}>
+                    <Typography color="text.secondary" sx={{ py: 3 }}>
+                      {rows.length === 0
+                        ? "No users returned by the API."
+                        : "No users match this search."}
                     </Typography>
                   </TableCell>
                 </TableRow>
               ) : (
-                rows.map((row) => {
+                pageSlice.map((row) => {
                   const roleLabels = rolesByUserId.get(row.id) ?? [];
+                  const initialSource =
+                    row.full_name?.trim() || row.email || "?";
+                  const initial = initialSource.charAt(0).toUpperCase();
                   return (
                     <TableRow key={row.id} hover>
-                      <TableCell>{row.id}</TableCell>
                       <TableCell>
-                        <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                          {row.email}
-                        </Typography>
+                        <Stack direction="row" spacing={1.5} sx={{ alignItems: "center" }}>
+                          <Avatar
+                            sx={{
+                              width: 36,
+                              height: 36,
+                              bgcolor: "primary.main",
+                              fontSize: "0.9rem",
+                            }}
+                          >
+                            {initial}
+                          </Avatar>
+                          <Box>
+                            <Typography
+                              variant="body2"
+                              sx={{ fontWeight: 700 }}
+                              color="primary"
+                            >
+                              {row.email}
+                            </Typography>
+                            <Typography variant="caption" color="text.secondary">
+                              ID {row.id}
+                            </Typography>
+                          </Box>
+                        </Stack>
                       </TableCell>
-                      <TableCell>
+                      <TableCell sx={{ maxWidth: 200 }}>
                         <Typography variant="body2" color="text.secondary">
                           {row.full_name ?? "—"}
                         </Typography>
                       </TableCell>
                       <TableCell sx={{ maxWidth: 280 }}>
                         {roleLabels.length === 0 ? (
-                          <Typography
-                            variant="body2"
-                            color="text.disabled"
-                            component="span"
-                          >
+                          <Typography variant="body2" color="text.disabled">
                             —
                           </Typography>
                         ) : (
@@ -252,6 +395,7 @@ export default function UserManagementPage() {
                                 size="small"
                                 label={name}
                                 variant="outlined"
+                                color="primary"
                               />
                             ))}
                           </Stack>
@@ -275,42 +419,56 @@ export default function UserManagementPage() {
                         )}
                       </TableCell>
                       <TableCell align="right">
-                        <Button
-                          size="small"
-                          startIcon={<VpnKeyIcon />}
-                          onClick={() => setRolesTarget(row)}
-                        >
-                          Set roles
-                        </Button>
-                        <Button
-                          size="small"
-                          startIcon={<EditIcon />}
-                          onClick={() => setEditTarget(row)}
-                        >
-                          Edit
-                        </Button>
-                        <Button
-                          size="small"
-                          startIcon={
-                            row.is_active ? (
-                              <BlockIcon />
-                            ) : (
-                              <CheckCircleOutlinedIcon />
-                            )
+                        <Tooltip title="Set RBAC roles">
+                          <IconButton
+                            size="small"
+                            color="secondary"
+                            aria-label="Set roles"
+                            onClick={() => setRolesTarget(row)}
+                          >
+                            <VpnKeyIcon fontSize="small" />
+                          </IconButton>
+                        </Tooltip>
+                        <Tooltip title="Edit profile">
+                          <IconButton
+                            size="small"
+                            color="primary"
+                            aria-label="Edit user"
+                            onClick={() => setEditTarget(row)}
+                          >
+                            <EditIcon fontSize="small" />
+                          </IconButton>
+                        </Tooltip>
+                        <Tooltip
+                          title={
+                            row.is_active ? "Deactivate account" : "Activate account"
                           }
-                          color={row.is_active ? "warning" : "success"}
-                          onClick={() => setActiveToggleTarget(row)}
                         >
-                          {row.is_active ? "Deactivate" : "Activate"}
-                        </Button>
-                        <Button
-                          size="small"
-                          color="error"
-                          startIcon={<DeleteIcon />}
-                          onClick={() => setDeleteTarget(row)}
-                        >
-                          Delete
-                        </Button>
+                          <IconButton
+                            size="small"
+                            color={row.is_active ? "warning" : "success"}
+                            aria-label={
+                              row.is_active ? "Deactivate user" : "Activate user"
+                            }
+                            onClick={() => setActiveToggleTarget(row)}
+                          >
+                            {row.is_active ? (
+                              <BlockIcon fontSize="small" />
+                            ) : (
+                              <CheckCircleOutlinedIcon fontSize="small" />
+                            )}
+                          </IconButton>
+                        </Tooltip>
+                        <Tooltip title="Delete user">
+                          <IconButton
+                            size="small"
+                            color="error"
+                            aria-label="Delete user"
+                            onClick={() => setDeleteTarget(row)}
+                          >
+                            <DeleteIcon fontSize="small" />
+                          </IconButton>
+                        </Tooltip>
                       </TableCell>
                     </TableRow>
                   );
@@ -318,8 +476,17 @@ export default function UserManagementPage() {
               )}
             </TableBody>
           </Table>
-        </CardContent>
-      </Card>
+        </TableContainer>
+        <TablePagination
+          component="div"
+          rowsPerPageOptions={[5, 10, 25, 50]}
+          count={filteredRows.length}
+          rowsPerPage={rowsPerPage}
+          page={page}
+          onPageChange={handleChangePage}
+          onRowsPerPageChange={handleChangeRowsPerPage}
+        />
+      </RbacAdminSection>
 
       <UserRolesDialog
         open={!!rolesTarget}
