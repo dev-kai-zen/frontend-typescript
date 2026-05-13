@@ -1,29 +1,40 @@
 import AddIcon from "@mui/icons-material/Add";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
+import GridOnIcon from "@mui/icons-material/GridOn";
+import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import RefreshIcon from "@mui/icons-material/Refresh";
+import SearchIcon from "@mui/icons-material/Search";
+import SecurityIcon from "@mui/icons-material/Security";
 import {
   Alert,
   Box,
   Button,
-  Card,
-  CardContent,
+  IconButton,
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
+  InputAdornment,
   LinearProgress,
   Stack,
   Table,
   TableBody,
   TableCell,
+  TableContainer,
   TableHead,
+  TablePagination,
   TableRow,
+  TextField,
+  Tooltip,
   Typography,
 } from "@mui/material";
-import { useEffect, useState } from "react";
+import Grid from "@mui/material/Grid";
+import { useEffect, useMemo, useState } from "react";
+import { Link as RouterLink } from "react-router-dom";
 
 import { getRbacApiErrorMessage } from "../permissions/rbac-api-errors";
+import { fetchRbacPermissions } from "../permissions/rbac-permissions-api";
 import {
   createRbacRole,
   deleteRbacRole,
@@ -32,6 +43,8 @@ import {
 } from "./rbac-roles-api";
 import { RbacRoleFormDialog } from "./RbacRoleFormDialog";
 import type { RbacRoleDto } from "./rbac-roles.types";
+import { RbacAdminSection } from "../components/RbacAdminSection";
+import { RbacStatCard } from "../components/RbacStatCard";
 
 /**
  * RBAC — Roles (named bundles of permissions).
@@ -40,16 +53,20 @@ import type { RbacRoleDto } from "./rbac-roles.types";
  * - `rbac-roles.types.ts` — role DTOs
  * - `rbac-roles-api.ts` — CRUD on `/api/v1/rbac/roles`
  * - `RbacRoleFormDialog.tsx` — create / edit metadata
- * - Assign permissions per role on **Role permissions** (`RbacRolePermissionsPage`)
- * - This file — table + wiring
+ * - Map permissions for all roles on **Role permission matrix**
  *
  * Backend: `/api/v1/rbac/roles`
  */
 export default function RbacRolesPage() {
   const [rows, setRows] = useState<RbacRoleDto[]>([]);
+  const [permissionCount, setPermissionCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [refreshNonce, setRefreshNonce] = useState(0);
+
+  const [searchTerm, setSearchTerm] = useState("");
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
 
   const [formOpen, setFormOpen] = useState(false);
   const [formMode, setFormMode] = useState<"create" | "edit">("create");
@@ -66,9 +83,13 @@ export default function RbacRolesPage() {
 
     (async () => {
       try {
-        const list = await fetchRbacRoles();
+        const [roleList, perms] = await Promise.all([
+          fetchRbacRoles(),
+          fetchRbacPermissions(),
+        ]);
         if (cancelled) return;
-        setRows(list);
+        setRows(roleList);
+        setPermissionCount(perms.length);
       } catch (err) {
         if (!cancelled) {
           setError(getRbacApiErrorMessage(err, "Failed to load RBAC roles"));
@@ -82,6 +103,25 @@ export default function RbacRolesPage() {
       cancelled = true;
     };
   }, [refreshNonce]);
+
+  const filteredRows = useMemo(() => {
+    const q = searchTerm.trim().toLowerCase();
+    if (!q) return rows;
+    return rows.filter(
+      (r) =>
+        r.role_name.toLowerCase().includes(q) ||
+        (r.role_description?.toLowerCase().includes(q) ?? false),
+    );
+  }, [rows, searchTerm]);
+
+  const stats = useMemo(() => {
+    const withDesc = rows.filter((r) => !!r.role_description?.trim()).length;
+    return {
+      roles: rows.length,
+      permissions: permissionCount,
+      withDesc,
+    };
+  }, [rows, permissionCount]);
 
   const openCreate = () => {
     setEditing(null);
@@ -139,27 +179,40 @@ export default function RbacRolesPage() {
     }
   };
 
+  const handleChangePage = (_: unknown, newPage: number) => {
+    setPage(newPage);
+  };
+
+  const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setRowsPerPage(Number.parseInt(event.target.value, 10));
+    setPage(0);
+  };
+
+  const pageSlice = filteredRows.slice(
+    page * rowsPerPage,
+    page * rowsPerPage + rowsPerPage,
+  );
+
   return (
-    <Stack spacing={2}>
-      <Box
+    <Stack spacing={3}>
+      <Box>
+        <Typography variant="h4" component="h1" sx={{ fontWeight: 700 }} gutterBottom>
+          Roles
+        </Typography>
+        <Typography variant="body1" color="text.secondary">
+          Roles group permissions for assignment to users. Use the{" "}
+          <strong>Role permission matrix</strong> to attach permission codes.
+        </Typography>
+      </Box>
+
+      <Stack
+        direction={{ xs: "column", sm: "row" }}
+        spacing={2}
         sx={{
-          display: "flex",
-          flexWrap: "wrap",
-          alignItems: "center",
+          alignItems: { xs: "stretch", sm: "center" },
           justifyContent: "space-between",
-          gap: 2,
         }}
       >
-        <div>
-          <Typography variant="h5" component="h1" gutterBottom>
-            RBAC roles
-          </Typography>
-          <Typography variant="body2" color="text.secondary">
-            Roles group permissions for assignment to users. Map permissions to
-            roles under <strong>RBAC → Role permissions</strong>. Deleting a role
-            soft-deletes it.
-          </Typography>
-        </div>
         <Stack
           direction="row"
           spacing={1}
@@ -174,15 +227,11 @@ export default function RbacRolesPage() {
           >
             Refresh
           </Button>
-          <Button
-            variant="contained"
-            startIcon={<AddIcon />}
-            onClick={openCreate}
-          >
+          <Button variant="contained" startIcon={<AddIcon />} onClick={openCreate}>
             Add role
           </Button>
         </Stack>
-      </Box>
+      </Stack>
 
       {error ? (
         <Alert severity="error" onClose={() => setError(null)}>
@@ -192,37 +241,113 @@ export default function RbacRolesPage() {
 
       {loading ? <LinearProgress /> : null}
 
-      <Card variant="outlined">
-        <CardContent sx={{ p: 0, "&:last-child": { pb: 0 } }}>
-          <Table size="small">
+      <Grid container spacing={2}>
+        <Grid size={{ xs: 12, sm: 6, md: 4 }}>
+          <RbacStatCard
+            label="Roles"
+            value={String(stats.roles)}
+            tone="primary"
+            icon={<SecurityIcon />}
+          />
+        </Grid>
+        <Grid size={{ xs: 12, sm: 6, md: 4 }}>
+          <RbacStatCard
+            label="Permissions in catalog"
+            value={String(stats.permissions)}
+            tone="info"
+            icon={<LockOutlinedIcon />}
+          />
+        </Grid>
+        <Grid size={{ xs: 12, sm: 6, md: 4 }}>
+          <RbacStatCard
+            label="Roles with description"
+            value={String(stats.withDesc)}
+            tone="success"
+            icon={<SecurityIcon />}
+          />
+        </Grid>
+      </Grid>
+
+      <RbacAdminSection>
+        <Box sx={{ p: 2, borderBottom: 1, borderColor: "divider" }}>
+          <TextField
+            size="small"
+            placeholder="Search roles…"
+            value={searchTerm}
+            onChange={(e) => {
+              setSearchTerm(e.target.value);
+              setPage(0);
+            }}
+            slotProps={{
+              input: {
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <SearchIcon fontSize="small" />
+                  </InputAdornment>
+                ),
+              },
+            }}
+            sx={{ maxWidth: { sm: 360 } }}
+          />
+        </Box>
+
+        <TableContainer>
+          <Table size="medium">
             <TableHead>
-              <TableRow>
-                <TableCell>ID</TableCell>
-                <TableCell>Name</TableCell>
-                <TableCell>Description</TableCell>
-                <TableCell align="right">Actions</TableCell>
+              <TableRow
+                sx={(theme) => ({
+                  bgcolor:
+                    theme.palette.mode === "dark"
+                      ? "rgba(255,255,255,0.05)"
+                      : "rgba(37, 52, 63, 0.06)",
+                })}
+              >
+                <TableCell sx={{ fontWeight: 700 }}>Role</TableCell>
+                <TableCell sx={{ fontWeight: 700 }}>Description</TableCell>
+                <TableCell sx={{ fontWeight: 700 }}>Created</TableCell>
+                <TableCell sx={{ fontWeight: 700 }} align="right">
+                  Actions
+                </TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
-              {rows.length === 0 && !loading ? (
+              {pageSlice.length === 0 && !loading ? (
                 <TableRow>
                   <TableCell colSpan={4}>
-                    <Typography color="text.secondary" sx={{ py: 2 }}>
-                      No roles yet. Create a role here, then map permissions under
-                      RBAC → Role permissions.
+                    <Typography color="text.secondary" sx={{ py: 3 }}>
+                      No roles yet. Create a role here, then map permissions in the
+                      matrix.
                     </Typography>
                   </TableCell>
                 </TableRow>
               ) : (
-                rows.map((row) => (
+                pageSlice.map((row) => (
                   <TableRow key={row.id} hover>
-                    <TableCell>{row.id}</TableCell>
                     <TableCell>
-                      <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                        {row.role_name}
-                      </Typography>
+                      <Stack direction="row" spacing={1.5} sx={{ alignItems: "center" }}>
+                        <Box
+                          sx={{
+                            width: 40,
+                            height: 40,
+                            borderRadius: 1,
+                            bgcolor: (theme) =>
+                              theme.palette.mode === "dark"
+                                ? "rgba(255, 155, 81, 0.15)"
+                                : "rgba(255, 155, 81, 0.25)",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            color: "primary.main",
+                          }}
+                        >
+                          <SecurityIcon fontSize="small" />
+                        </Box>
+                        <Typography variant="body2" sx={{ fontWeight: 700 }}>
+                          {row.role_name}
+                        </Typography>
+                      </Stack>
                     </TableCell>
-                    <TableCell>
+                    <TableCell sx={{ maxWidth: 420 }}>
                       {row.role_description ? (
                         <Typography variant="body2" color="text.secondary">
                           {row.role_description}
@@ -233,30 +358,59 @@ export default function RbacRolesPage() {
                         </Typography>
                       )}
                     </TableCell>
+                    <TableCell width="14%">
+                      <Typography variant="body2" color="text.secondary">
+                        {row.created_at
+                          ? new Date(row.created_at).toLocaleDateString()
+                          : "—"}
+                      </Typography>
+                    </TableCell>
                     <TableCell align="right">
-                      <Button
-                        size="small"
-                        startIcon={<EditIcon />}
-                        onClick={() => openEdit(row)}
-                      >
-                        Edit
-                      </Button>
-                      <Button
-                        size="small"
-                        color="error"
-                        startIcon={<DeleteIcon />}
-                        onClick={() => setDeleteTarget(row)}
-                      >
-                        Delete
-                      </Button>
+                      <Tooltip title="Edit role">
+                        <IconButton
+                          size="small"
+                          color="primary"
+                          onClick={() => openEdit(row)}
+                        >
+                          <EditIcon fontSize="small" />
+                        </IconButton>
+                      </Tooltip>
+                      <Tooltip title="Open permission matrix">
+                        <IconButton
+                          size="small"
+                          color="secondary"
+                          component={RouterLink}
+                          to="/admin/rbac/role-permissions"
+                        >
+                          <GridOnIcon fontSize="small" />
+                        </IconButton>
+                      </Tooltip>
+                      <Tooltip title="Delete role">
+                        <IconButton
+                          size="small"
+                          color="error"
+                          onClick={() => setDeleteTarget(row)}
+                        >
+                          <DeleteIcon fontSize="small" />
+                        </IconButton>
+                      </Tooltip>
                     </TableCell>
                   </TableRow>
                 ))
               )}
             </TableBody>
           </Table>
-        </CardContent>
-      </Card>
+        </TableContainer>
+        <TablePagination
+          component="div"
+          rowsPerPageOptions={[5, 10, 25, 50]}
+          count={filteredRows.length}
+          rowsPerPage={rowsPerPage}
+          page={page}
+          onPageChange={handleChangePage}
+          onRowsPerPageChange={handleChangeRowsPerPage}
+        />
+      </RbacAdminSection>
 
       <RbacRoleFormDialog
         open={formOpen}
@@ -284,11 +438,7 @@ export default function RbacRolesPage() {
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setDeleteTarget(null)}>Cancel</Button>
-          <Button
-            color="error"
-            variant="contained"
-            onClick={() => void confirmDelete()}
-          >
+          <Button color="error" variant="contained" onClick={() => void confirmDelete()}>
             Delete
           </Button>
         </DialogActions>

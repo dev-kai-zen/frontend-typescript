@@ -14,28 +14,28 @@ import {
 } from "@mui/material";
 import { useState } from "react";
 
-import type { RbacGroupDto, RbacPermissionDto } from "./rbac-permissions.types";
+import type { RbacCategoryDto, RbacPermissionDto } from "./rbac-permissions.types";
 
 export type RbacPermissionFormDialogProps = {
   open: boolean;
   mode: "create" | "edit";
   /** Edit mode: existing row */
   initial?: RbacPermissionDto | null;
-  groups: RbacGroupDto[];
+  categories: RbacCategoryDto[];
   onClose: () => void;
   onSubmit: (values: {
     permissionCode: string;
     permissionDescription: string;
-    groupId: number | null;
+    categoryId: number | null;
   }) => void;
 };
 
-const UNGROUPED_VALUE = "";
+const UNCATEGORIZED_VALUE = "";
 
 type FieldsProps = {
   mode: "create" | "edit";
   initial: RbacPermissionDto | null;
-  groups: RbacGroupDto[];
+  categories: RbacCategoryDto[];
   onClose: () => void;
   onSubmit: RbacPermissionFormDialogProps["onSubmit"];
 };
@@ -47,7 +47,7 @@ type FieldsProps = {
 function RbacPermissionFormFields({
   mode,
   initial,
-  groups,
+  categories,
   onClose,
   onSubmit,
 }: FieldsProps) {
@@ -60,14 +60,14 @@ function RbacPermissionFormFields({
         ? (initial.permission_description ?? "")
         : "",
   );
-  const [groupIdRaw, setGroupIdRaw] = useState(() =>
-    mode === "edit" && initial && initial.group_id != null
-      ? String(initial.group_id)
-      : UNGROUPED_VALUE,
+  const [categoryIdRaw, setCategoryIdRaw] = useState(() =>
+    mode === "edit" && initial && initial.category_id != null
+      ? String(initial.category_id)
+      : UNCATEGORIZED_VALUE,
   );
 
-  const handleGroupChange = (e: SelectChangeEvent<string>) => {
-    setGroupIdRaw(e.target.value);
+  const handleCategoryChange = (e: SelectChangeEvent<string>) => {
+    setCategoryIdRaw(e.target.value);
   };
 
   const handleSave = () => {
@@ -76,10 +76,10 @@ function RbacPermissionFormFields({
     onSubmit({
       permissionCode: trimmed,
       permissionDescription: description.trim(),
-      groupId:
-        groupIdRaw === "" || groupIdRaw === UNGROUPED_VALUE
+      categoryId:
+        categoryIdRaw === "" || categoryIdRaw === UNCATEGORIZED_VALUE
           ? null
-          : Number.parseInt(groupIdRaw, 10),
+          : Number.parseInt(categoryIdRaw, 10),
     });
   };
 
@@ -112,19 +112,19 @@ function RbacPermissionFormFields({
             minRows={2}
           />
           <FormControl fullWidth>
-            <InputLabel id="rbac-perm-group-label">Group</InputLabel>
+            <InputLabel id="rbac-perm-category-label">Category</InputLabel>
             <Select
-              labelId="rbac-perm-group-label"
-              label="Group"
-              value={groupIdRaw}
-              onChange={handleGroupChange}
+              labelId="rbac-perm-category-label"
+              label="Category"
+              value={categoryIdRaw}
+              onChange={handleCategoryChange}
             >
-              <MenuItem value={UNGROUPED_VALUE}>
-                <em>Ungrouped</em>
+              <MenuItem value={UNCATEGORIZED_VALUE}>
+                <em>Uncategorized</em>
               </MenuItem>
-              {groups.map((g) => (
-                <MenuItem key={g.id} value={String(g.id)}>
-                  {g.group_name}
+              {categories.map((c) => (
+                <MenuItem key={c.id} value={String(c.id)}>
+                  {c.category_name}
                 </MenuItem>
               ))}
             </Select>
@@ -147,13 +147,12 @@ function RbacPermissionFormFields({
 
 /**
  * Single form for create + edit so validation and fields stay in one place.
- * Juniors: add fields in `RbacPermissionFormFields` only — the page wires `onSubmit` to the API module.
  */
 export function RbacPermissionFormDialog({
   open,
   mode,
   initial,
-  groups,
+  categories,
   onClose,
   onSubmit,
 }: RbacPermissionFormDialogProps) {
@@ -166,7 +165,7 @@ export function RbacPermissionFormDialog({
           key={fieldsKey}
           mode={mode}
           initial={initial ?? null}
-          groups={groups}
+          categories={categories}
           onClose={onClose}
           onSubmit={onSubmit}
         />

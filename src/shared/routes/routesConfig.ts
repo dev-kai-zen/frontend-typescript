@@ -1,10 +1,11 @@
 import AdminPanelSettingsIcon from "@mui/icons-material/AdminPanelSettings";
 import HomeIcon from "@mui/icons-material/Home";
-import AccountTreeIcon from "@mui/icons-material/AccountTree";
-import FolderSpecialIcon from "@mui/icons-material/FolderSpecial";
+import AssignmentIndIcon from "@mui/icons-material/AssignmentInd";
+import CategoryIcon from "@mui/icons-material/Category";
 import HistoryIcon from "@mui/icons-material/History";
 import ListAltIcon from "@mui/icons-material/ListAlt";
 import ManageAccountsIcon from "@mui/icons-material/ManageAccounts";
+import TableChartIcon from "@mui/icons-material/TableChart";
 import VpnKeyIcon from "@mui/icons-material/VpnKey";
 import PersonIcon from "@mui/icons-material/Person";
 import SettingsIcon from "@mui/icons-material/Settings";
@@ -12,8 +13,9 @@ import SettingsIcon from "@mui/icons-material/Settings";
 import AuditLogsPage from "../../modules/audit-logs/AuditLogsPage";
 import HiddenRoutePage from "../../modules/hidden-route/HiddenRoutePage";
 import HomePage from "../../modules/home/HomePage";
-import RbacGroupsPage from "../../modules/rbac/groups/RbacGroupsPage";
+import RbacCategoriesPage from "../../modules/rbac/categories/RbacCategoriesPage";
 import RbacPermissionsPage from "../../modules/rbac/permissions/RbacPermissionsPage";
+import RbacRoleAssignmentsHistoryPage from "../../modules/rbac/role-assignments-history/RbacRoleAssignmentsHistoryPage";
 import RbacRolePermissionsPage from "../../modules/rbac/role-permissions/RbacRolePermissionsPage";
 import RbacRolesPage from "../../modules/rbac/roles/RbacRolesPage";
 import SettingsPage from "../../modules/settings/SettingsPage";
@@ -82,11 +84,11 @@ export const ROUTES_NAV_TREE: RouteNavItem[] = [
         children: [
           {
             kind: "leaf",
-            key: "rbac-groups",
-            path: "/admin/rbac/groups",
-            Page: RbacGroupsPage,
-            Icon: FolderSpecialIcon,
-            label: "Groups",
+            key: "rbac-categories",
+            path: "/admin/rbac/categories",
+            Page: RbacCategoriesPage,
+            Icon: CategoryIcon,
+            label: "Categories",
           },
           {
             kind: "leaf",
@@ -109,8 +111,16 @@ export const ROUTES_NAV_TREE: RouteNavItem[] = [
             key: "rbac-role-permissions",
             path: "/admin/rbac/role-permissions",
             Page: RbacRolePermissionsPage,
-            Icon: AccountTreeIcon,
-            label: "Role permissions",
+            Icon: TableChartIcon,
+            label: "Role permission matrix",
+          },
+          {
+            kind: "leaf",
+            key: "rbac-role-assignments-history",
+            path: "/admin/rbac/role-assignments-history",
+            Page: RbacRoleAssignmentsHistoryPage,
+            Icon: AssignmentIndIcon,
+            label: "Role assignments history",
           },
         ],
       },

@@ -7,22 +7,22 @@ import type {
 
 type ListResponse = { data: RbacPermissionDto[] };
 
-function buildListUrl(groupId?: number): string {
+function buildListUrl(categoryId?: number): string {
   const base = "/api/v1/rbac/permissions";
-  if (groupId === undefined || !Number.isFinite(groupId)) {
+  if (categoryId === undefined || !Number.isFinite(categoryId)) {
     return base;
   }
-  return `${base}?groupId=${encodeURIComponent(String(groupId))}`;
+  return `${base}?categoryId=${encodeURIComponent(String(categoryId))}`;
 }
 
 /**
  * GET /api/v1/rbac/permissions
- * @param groupId optional filter (matches backend `listPermissionsQuerySchema`)
+ * @param categoryId optional filter (matches backend `listPermissionsQuerySchema`)
  */
 export async function fetchRbacPermissions(
-  groupId?: number,
+  categoryId?: number,
 ): Promise<RbacPermissionDto[]> {
-  const body = (await apiClient.get(buildListUrl(groupId))) as ListResponse;
+  const body = (await apiClient.get(buildListUrl(categoryId))) as ListResponse;
   return body.data ?? [];
 }
 
@@ -32,10 +32,10 @@ export async function createRbacPermission(
   return (await apiClient.post("/api/v1/rbac/permissions", {
     permissionCode: payload.permissionCode,
     permissionDescription: payload.permissionDescription ?? null,
-    groupId:
-      payload.groupId === undefined || payload.groupId === null
+    categoryId:
+      payload.categoryId === undefined || payload.categoryId === null
         ? null
-        : payload.groupId,
+        : payload.categoryId,
   })) as RbacPermissionDto;
 }
 
@@ -50,7 +50,7 @@ export async function updateRbacPermission(
     ...(payload.permissionDescription !== undefined && {
       permissionDescription: payload.permissionDescription,
     }),
-    ...(payload.groupId !== undefined && { groupId: payload.groupId }),
+    ...(payload.categoryId !== undefined && { categoryId: payload.categoryId }),
   })) as RbacPermissionDto;
 }
 

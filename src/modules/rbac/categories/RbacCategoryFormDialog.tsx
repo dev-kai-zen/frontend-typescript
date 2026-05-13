@@ -9,50 +9,50 @@ import {
 } from "@mui/material";
 import { useState } from "react";
 
-import type { RbacGroupDto } from "./rbac-groups.types";
+import type { RbacCategoryDto } from "./rbac-categories.types";
 
-export type RbacGroupFormDialogProps = {
+export type RbacCategoryFormDialogProps = {
   open: boolean;
   mode: "create" | "edit";
-  initial?: RbacGroupDto | null;
+  initial?: RbacCategoryDto | null;
   onClose: () => void;
-  onSubmit: (values: { groupName: string }) => void;
+  onSubmit: (values: { categoryName: string }) => void;
 };
 
 type FieldsProps = {
   mode: "create" | "edit";
-  initial: RbacGroupDto | null;
+  initial: RbacCategoryDto | null;
   onClose: () => void;
-  onSubmit: RbacGroupFormDialogProps["onSubmit"];
+  onSubmit: RbacCategoryFormDialogProps["onSubmit"];
 };
 
-function RbacGroupFormFields({
+function RbacCategoryFormFields({
   mode,
   initial,
   onClose,
   onSubmit,
 }: FieldsProps) {
-  const [groupName, setGroupName] = useState(
-    () => (mode === "edit" && initial ? initial.group_name : ""),
+  const [categoryName, setCategoryName] = useState(
+    () => (mode === "edit" && initial ? initial.category_name : ""),
   );
 
   const handleSave = () => {
-    const t = groupName.trim();
+    const t = categoryName.trim();
     if (!t) return;
-    onSubmit({ groupName: t });
+    onSubmit({ categoryName: t });
   };
 
   return (
     <>
       <DialogTitle>
-        {mode === "create" ? "Create group" : "Rename group"}
+        {mode === "create" ? "Create category" : "Rename category"}
       </DialogTitle>
       <DialogContent>
         <Stack spacing={2} sx={{ mt: 1 }}>
           <TextField
-            label="Group name"
-            value={groupName}
-            onChange={(e) => setGroupName(e.target.value)}
+            label="Category name"
+            value={categoryName}
+            onChange={(e) => setCategoryName(e.target.value)}
             required
             fullWidth
             helperText="Must be unique. Used to organize permissions."
@@ -64,7 +64,7 @@ function RbacGroupFormFields({
         <Button
           onClick={handleSave}
           variant="contained"
-          disabled={!groupName.trim()}
+          disabled={!categoryName.trim()}
         >
           {mode === "create" ? "Create" : "Save"}
         </Button>
@@ -73,20 +73,20 @@ function RbacGroupFormFields({
   );
 }
 
-/** Create / edit RBAC group (single `group_name` field on the API). */
-export function RbacGroupFormDialog({
+/** Create / edit RBAC category (`category_name` field on the API). */
+export function RbacCategoryFormDialog({
   open,
   mode,
   initial,
   onClose,
   onSubmit,
-}: RbacGroupFormDialogProps) {
+}: RbacCategoryFormDialogProps) {
   const fieldsKey = `${mode}-${initial?.id ?? "new"}`;
 
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
       {open ? (
-        <RbacGroupFormFields
+        <RbacCategoryFormFields
           key={fieldsKey}
           mode={mode}
           initial={initial ?? null}
