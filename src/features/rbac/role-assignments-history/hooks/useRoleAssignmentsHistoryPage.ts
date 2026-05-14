@@ -1,7 +1,7 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { type ChangeEvent, useCallback, useMemo, useState } from "react";
 
-import { getRbacApiErrorMessage } from "../../permissions/rbac-api-errors";
+import { getRbacApiErrorMessage } from "../../permissions/services/rbac-api-errors";
 import type { RoleAssignmentRow } from "../types/role-assignments-history.types";
 import { downloadRoleAssignmentsCsv } from "../utils/role-assignments-history-csv";
 import { roleAssignmentsHistoryKeys } from "./role-assignments-history-query-keys";

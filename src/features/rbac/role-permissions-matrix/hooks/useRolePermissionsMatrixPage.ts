@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
 
-import { getRbacApiErrorMessage } from "../../permissions/rbac-api-errors";
+import { getRbacApiErrorMessage } from "../../permissions/services/rbac-api-errors";
 import type { RbacRoleDto } from "../../roles/types/rbac-roles.types";
 import type { CategoryBlock } from "../types/role-permissions-matrix.types";
 import { setRolePermissions } from "../services/rbac-role-permissions-api";
@@ -57,9 +57,7 @@ export function useRolePermissionsMatrixPage(): RolePermissionsMatrixPageViewMod
     const m = cloneMatrix(data.matrix);
     setMatrix(m);
     setBaseline(cloneMatrix(data.matrix));
-    setExpandedKeys(
-      computeInitialExpandedKeys(data.categories, data.catalog),
-    );
+    setExpandedKeys(computeInitialExpandedKeys(data.categories, data.catalog));
     /* eslint-enable react-hooks/set-state-in-effect */
   }, [snapshotQuery.dataUpdatedAt, snapshotQuery.data]);
 

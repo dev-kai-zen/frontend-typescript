@@ -1,6 +1,6 @@
 import { Navigate, Route, Routes } from "react-router-dom";
-import { useAuthStore } from "../../features/auth/auth-store";
-import LoginPage from "../../features/auth/LoginPage";
+import { useAuthStore } from "../../features/auth/stores/auth-store";
+import LoginPage from "../../features/auth/pages/LoginPage";
 import MainLayout from "../shell/MainLayout";
 import NotFoundPage from "../pages/NotFoundPage";
 import RestrictedPage from "../pages/RestrictedPage";

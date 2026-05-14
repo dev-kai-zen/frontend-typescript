@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { type ChangeEvent, useMemo, useState } from "react";
 
-import { getRbacApiErrorMessage } from "../../permissions/rbac-api-errors";
+import { getRbacApiErrorMessage } from "../../permissions/services/rbac-api-errors";
 import { rbacPermissionsKeys } from "../../permissions/hooks/rbac-permissions-query-keys";
 import { useRbacPermissionsListQuery } from "../../permissions/hooks/useRbacPermissionsListQuery";
 import type {
@@ -56,7 +56,9 @@ export type RbacRolesPageViewModel = {
   deletingRole: boolean;
 };
 
-function invalidateRolesAndPermissionsQueries(queryClient: ReturnType<typeof useQueryClient>) {
+function invalidateRolesAndPermissionsQueries(
+  queryClient: ReturnType<typeof useQueryClient>,
+) {
   void queryClient.invalidateQueries({ queryKey: rbacRolesKeys.all });
   void queryClient.invalidateQueries({ queryKey: rbacPermissionsKeys.all });
 }
@@ -82,10 +84,7 @@ export function useRbacRolesPage(): RbacRolesPageViewModel {
 
   const [deleteTarget, setDeleteTarget] = useState<RbacRoleDto | null>(null);
 
-  const rows = useMemo(
-    () => rolesQuery.data ?? [],
-    [rolesQuery.data],
-  );
+  const rows = useMemo(() => rolesQuery.data ?? [], [rolesQuery.data]);
 
   const listFetching = rolesQuery.isFetching || permissionsQuery.isFetching;
 

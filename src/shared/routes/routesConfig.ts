@@ -14,14 +14,13 @@ import AuditLogsPage from "../../features/audit-logs/AuditLogsPage";
 import HiddenRoutePage from "../../features/hidden-route/HiddenRoutePage";
 import HomePage from "../../features/home/HomePage";
 import RbacCategoriesPage from "../../features/rbac/categories/pages/RbacCategoriesPage";
-import RbacPermissionsPage from "../../features/rbac/permissions/RbacPermissionsPage";
-import RbacRoleAssignmentsHistoryPage from "../../features/rbac/role-assignments-history/RbacRoleAssignmentsHistoryPage";
-import RbacRolePermissionsPage from "../../features/rbac/role-permissions-matrix/RbacRolePermissionsPage";
-import RbacRolesPage from "../../features/rbac/roles/RbacRolesPage";
+import RbacPermissionsPage from "../../features/rbac/permissions/pages/RbacPermissionsPage";
+import RbacRoleAssignmentsHistoryPage from "../../features/rbac/role-assignments-history/pages/RbacRoleAssignmentsHistoryPage";
+import RbacRolePermissionsPage from "../../features/rbac/role-permissions-matrix/pages/RbacRolePermissionsPage";
+import RbacRolesPage from "../../features/rbac/roles/pages/RbacRolesPage";
 import SettingsPage from "../../features/settings/SettingsPage";
-import UserLogsPage from "../../features/user-logs/UserLogsPage";
-import UserManagementPage from "../../features/user-management/UserManagementPage";
-
+import UserLogsPage from "../../features/user-logs/pages/UserLogsPage";
+import UserManagementPage from "../../features/user-management/pages/UserManagementPage";
 import type { RouteNavItem } from "./route-nav-types";
 
 /**

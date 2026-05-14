@@ -1,14 +1,10 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import {
-  type ChangeEvent,
-  useMemo,
-  useState,
-} from "react";
+import { type ChangeEvent, useMemo, useState } from "react";
 import type { SelectChangeEvent } from "@mui/material";
 
 import { rbacPermissionsForCategoriesKeys } from "../../categories/hooks/rbac-permissions-for-categories-query-keys";
 import { rbacCategoriesKeys } from "../../categories/hooks/rbac-categories-query-keys";
-import { getRbacApiErrorMessage } from "../rbac-api-errors";
+import { getRbacApiErrorMessage } from "../services/rbac-api-errors";
 import type {
   CreateRbacPermissionPayload,
   RbacPermissionDto,
@@ -230,7 +226,9 @@ export function useRbacPermissionsPage(): RbacPermissionsPageViewModel {
       setEditing(null);
     },
     onError: (err: unknown) => {
-      setMutationError(getRbacApiErrorMessage(err, "Failed to create permission"));
+      setMutationError(
+        getRbacApiErrorMessage(err, "Failed to create permission"),
+      );
     },
   });
 
@@ -244,7 +242,9 @@ export function useRbacPermissionsPage(): RbacPermissionsPageViewModel {
       setEditing(null);
     },
     onError: (err: unknown) => {
-      setMutationError(getRbacApiErrorMessage(err, "Failed to update permission"));
+      setMutationError(
+        getRbacApiErrorMessage(err, "Failed to update permission"),
+      );
     },
   });
 
@@ -256,7 +256,9 @@ export function useRbacPermissionsPage(): RbacPermissionsPageViewModel {
       setDeleteTarget(null);
     },
     onError: (err: unknown) => {
-      setMutationError(getRbacApiErrorMessage(err, "Failed to delete permission"));
+      setMutationError(
+        getRbacApiErrorMessage(err, "Failed to delete permission"),
+      );
     },
   });
 
@@ -342,16 +344,14 @@ export function useRbacPermissionsPage(): RbacPermissionsPageViewModel {
       ? toggleActiveMutation.variables.id
       : null;
 
-  const loading =
-    categoriesQuery.isFetching || permissionsQuery.isFetching;
+  const loading = categoriesQuery.isFetching || permissionsQuery.isFetching;
   const saving =
     createMutation.isPending ||
     updateMutation.isPending ||
     deleteMutation.isPending ||
     toggleActiveMutation.isPending;
 
-  const formSaving =
-    createMutation.isPending || updateMutation.isPending;
+  const formSaving = createMutation.isPending || updateMutation.isPending;
   const deleteBusy = deleteMutation.isPending;
 
   return {

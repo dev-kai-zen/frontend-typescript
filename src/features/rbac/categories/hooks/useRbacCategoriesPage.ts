@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 
-import { getRbacApiErrorMessage } from "../../permissions/rbac-api-errors";
+import { getRbacApiErrorMessage } from "../../permissions/services/rbac-api-errors";
 import {
   createRbacCategory,
   deleteRbacCategory,
@@ -129,9 +129,7 @@ export function useRbacCategoriesPage(): RbacCategoriesPageViewModel {
   const stats = useMemo((): RbacCategoriesPageStats => {
     const totalPerm = permissions.length;
     const avg =
-      rows.length === 0
-        ? "0"
-        : String(Math.round(totalPerm / rows.length));
+      rows.length === 0 ? "0" : String(Math.round(totalPerm / rows.length));
     return {
       categories: rows.length,
       permissions: totalPerm,

@@ -19,7 +19,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { logoutOnServer } from "../../features/auth/services/google-auth-api";
-import { useAuthStore } from "../../features/auth/auth-store";
+import { useAuthStore } from "../../features/auth/stores/auth-store";
 import { useThemeMode } from "../theme/AppThemeProvider";
 
 function ThemeToggleButton() {

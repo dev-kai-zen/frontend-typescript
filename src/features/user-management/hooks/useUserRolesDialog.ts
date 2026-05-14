@@ -1,8 +1,8 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
 
-import { useAuthStore } from "../../auth/auth-store";
-import { getRbacApiErrorMessage } from "../../rbac/permissions/rbac-api-errors";
+import { useAuthStore } from "../../auth/stores/auth-store";
+import { getRbacApiErrorMessage } from "../../rbac/permissions/services/rbac-api-errors";
 import { fetchRbacRoles } from "../../rbac/roles/services/rbac-roles-api";
 import type { RbacRoleDto } from "../../rbac/roles/types/rbac-roles.types";
 import { fetchUserRoles, setUserRoles } from "../services/user-roles-api";
@@ -142,8 +142,7 @@ export function useUserRolesDialog(args: Args): UserRolesDialogViewModel {
     }
   };
 
-  const userLabel =
-    user != null ? `${user.email} (#${user.id})` : "user";
+  const userLabel = user != null ? `${user.email} (#${user.id})` : "user";
 
   return {
     actorId,

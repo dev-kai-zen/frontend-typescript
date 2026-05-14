@@ -1,7 +1,7 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { type ChangeEvent, useEffect, useMemo, useState } from "react";
 
-import { getRbacApiErrorMessage } from "../../rbac/permissions/rbac-api-errors";
+import { getRbacApiErrorMessage } from "../../rbac/permissions/services/rbac-api-errors";
 import type { AuditLogDto } from "../types/audit-logs.types";
 import { auditLogsKeys } from "./audit-logs-query-keys";
 import { useAuditLogsQuery } from "./useAuditLogsQuery";

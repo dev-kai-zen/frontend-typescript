@@ -1,8 +1,11 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { type ChangeEvent, useMemo, useState } from "react";
 
-import { getRbacApiErrorMessage } from "../../rbac/permissions/rbac-api-errors";
-import type { UpdateUserAdminPayload, UserListItemDto } from "../types/users.types";
+import { getRbacApiErrorMessage } from "../../rbac/permissions/services/rbac-api-errors";
+import type {
+  UpdateUserAdminPayload,
+  UserListItemDto,
+} from "../types/users.types";
 import { deleteUserAdmin, updateUserAdmin } from "../services/users-api";
 import { userManagementKeys } from "./user-management-query-keys";
 import { useUserManagementSnapshotQuery } from "./useUserManagementSnapshotQuery";
@@ -38,7 +41,10 @@ export type UserManagementPageViewModel = {
   editTarget: UserListItemDto | null;
   openEdit: (row: UserListItemDto) => void;
   closeEdit: () => void;
-  submitEdit: (values: { email: string; fullName: string | null }) => Promise<void>;
+  submitEdit: (values: {
+    email: string;
+    fullName: string | null;
+  }) => Promise<void>;
   deleteTarget: UserListItemDto | null;
   openDelete: (row: UserListItemDto) => void;
   closeDelete: () => void;
@@ -143,8 +149,7 @@ export function useUserManagementPage(): UserManagementPageViewModel {
     const q = searchTerm.trim().toLowerCase();
     if (!q) return rows;
     return rows.filter((row) => {
-      const roleStr =
-        rolesByUserId[row.id]?.join(" ").toLowerCase() ?? "";
+      const roleStr = rolesByUserId[row.id]?.join(" ").toLowerCase() ?? "";
       return (
         row.email.toLowerCase().includes(q) ||
         (row.full_name?.toLowerCase().includes(q) ?? false) ||

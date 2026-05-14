@@ -60,11 +60,11 @@ apiClient.interceptors.response.use(
         throw new Error("Refresh failed");
       }
       authTokenRef.current = body.data.accessToken;
-      const { useAuthStore } = await import("../../features/auth/auth-store");
+      const { useAuthStore } = await import("../../features/auth/stores/auth-store");
       useAuthStore.getState().setAccessToken(body.data.accessToken);
       return apiClient.request(original);
     } catch {
-      const { useAuthStore } = await import("../../features/auth/auth-store");
+      const { useAuthStore } = await import("../../features/auth/stores/auth-store");
       useAuthStore.getState().clearSession();
       return Promise.reject(error);
     }
