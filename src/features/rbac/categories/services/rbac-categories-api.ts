@@ -1,9 +1,9 @@
-import apiClient from "../../../shared/api/api-client";
+import apiClient from "../../../../shared/api/api-client";
 import type {
   CreateRbacCategoryPayload,
   RbacCategoryDto,
   UpdateRbacCategoryPayload,
-} from "./rbac-categories.types";
+} from "../types/rbac-categories.types";
 
 type ListCategoriesResponse = { data: RbacCategoryDto[] };
 

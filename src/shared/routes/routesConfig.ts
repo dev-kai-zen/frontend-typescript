@@ -13,7 +13,7 @@ import SettingsIcon from "@mui/icons-material/Settings";
 import AuditLogsPage from "../../features/audit-logs/AuditLogsPage";
 import HiddenRoutePage from "../../features/hidden-route/HiddenRoutePage";
 import HomePage from "../../features/home/HomePage";
-import RbacCategoriesPage from "../../features/rbac/categories/RbacCategoriesPage";
+import RbacCategoriesPage from "../../features/rbac/categories/pages/RbacCategoriesPage";
 import RbacPermissionsPage from "../../features/rbac/permissions/RbacPermissionsPage";
 import RbacRoleAssignmentsHistoryPage from "../../features/rbac/role-assignments-history/RbacRoleAssignmentsHistoryPage";
 import RbacRolePermissionsPage from "../../features/rbac/role-permissions/RbacRolePermissionsPage";

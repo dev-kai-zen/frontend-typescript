@@ -40,7 +40,7 @@ import {
 import Grid from "@mui/material/Grid";
 import { useEffect, useMemo, useState } from "react";
 
-import { fetchRbacCategories } from "../categories/rbac-categories-api";
+import { fetchRbacCategories } from "../categories/services/rbac-categories-api";
 import {
   createRbacPermission,
   deleteRbacPermission,

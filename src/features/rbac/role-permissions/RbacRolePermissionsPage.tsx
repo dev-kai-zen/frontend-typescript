@@ -29,8 +29,8 @@ import {
 import { alpha, useTheme, type Theme } from "@mui/material/styles";
 import { Fragment, useCallback, useEffect, useMemo, useState } from "react";
 
-import { fetchRbacCategories } from "../categories/rbac-categories-api";
-import type { RbacCategoryDto } from "../categories/rbac-categories.types";
+import { fetchRbacCategories } from "../categories/services/rbac-categories-api";
+import type { RbacCategoryDto } from "../categories/types/rbac-categories.types";
 import { getRbacApiErrorMessage } from "../permissions/rbac-api-errors";
 import { fetchRbacPermissions } from "../permissions/rbac-permissions-api";
 import type { RbacPermissionDto } from "../permissions/rbac-permissions.types";

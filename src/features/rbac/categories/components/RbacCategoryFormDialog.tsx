@@ -9,7 +9,7 @@ import {
 } from "@mui/material";
 import { useState } from "react";
 
-import type { RbacCategoryDto } from "./rbac-categories.types";
+import type { RbacCategoryDto } from "../types/rbac-categories.types";
 
 export type RbacCategoryFormDialogProps = {
   open: boolean;
@@ -17,6 +17,7 @@ export type RbacCategoryFormDialogProps = {
   initial?: RbacCategoryDto | null;
   onClose: () => void;
   onSubmit: (values: { categoryName: string }) => void;
+  busy?: boolean;
 };
 
 type FieldsProps = {
@@ -24,6 +25,7 @@ type FieldsProps = {
   initial: RbacCategoryDto | null;
   onClose: () => void;
   onSubmit: RbacCategoryFormDialogProps["onSubmit"];
+  busy: boolean;
 };
 
 function RbacCategoryFormFields({
@@ -31,6 +33,7 @@ function RbacCategoryFormFields({
   initial,
   onClose,
   onSubmit,
+  busy,
 }: FieldsProps) {
   const [categoryName, setCategoryName] = useState(
     () => (mode === "edit" && initial ? initial.category_name : ""),
@@ -55,16 +58,19 @@ function RbacCategoryFormFields({
             onChange={(e) => setCategoryName(e.target.value)}
             required
             fullWidth
+            disabled={busy}
             helperText="Must be unique. Used to organize permissions."
           />
         </Stack>
       </DialogContent>
       <DialogActions>
-        <Button onClick={onClose}>Cancel</Button>
+        <Button onClick={onClose} disabled={busy}>
+          Cancel
+        </Button>
         <Button
           onClick={handleSave}
           variant="contained"
-          disabled={!categoryName.trim()}
+          disabled={!categoryName.trim() || busy}
         >
           {mode === "create" ? "Create" : "Save"}
         </Button>
@@ -80,6 +86,7 @@ export function RbacCategoryFormDialog({
   initial,
   onClose,
   onSubmit,
+  busy = false,
 }: RbacCategoryFormDialogProps) {
   const fieldsKey = `${mode}-${initial?.id ?? "new"}`;
 
@@ -92,6 +99,7 @@ export function RbacCategoryFormDialog({
           initial={initial ?? null}
           onClose={onClose}
           onSubmit={onSubmit}
+          busy={busy}
         />
       ) : null}
     </Dialog>
