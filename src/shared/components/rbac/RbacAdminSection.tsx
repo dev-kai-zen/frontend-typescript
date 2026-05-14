@@ -5,7 +5,7 @@ export type RbacAdminSectionProps = PaperProps & {
   children: ReactNode;
 };
 
-/** Bordered content panel — aligns RBAC pages with the rbac-design “Paper shell”. */
+/** Bordered content panel — aligns RBAC-style admin pages with a Paper shell. */
 export function RbacAdminSection({
   children,
   elevation = 0,

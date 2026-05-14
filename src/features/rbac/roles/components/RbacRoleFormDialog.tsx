@@ -9,12 +9,14 @@ import {
 } from "@mui/material";
 import { useState } from "react";
 
-import type { RbacRoleDto } from "./rbac-roles.types";
+import type { RbacRoleDto } from "../types/rbac-roles.types";
 
 export type RbacRoleFormDialogProps = {
   open: boolean;
   mode: "create" | "edit";
   initial?: RbacRoleDto | null;
+  /** Disable save while a submit mutation is in flight. */
+  busy?: boolean;
   onClose: () => void;
   onSubmit: (values: { roleName: string; roleDescription: string | null }) => void;
 };
@@ -22,6 +24,7 @@ export type RbacRoleFormDialogProps = {
 type FieldsProps = {
   mode: "create" | "edit";
   initial: RbacRoleDto | null;
+  busy: boolean;
   onClose: () => void;
   onSubmit: RbacRoleFormDialogProps["onSubmit"];
 };
@@ -29,6 +32,7 @@ type FieldsProps = {
 function RbacRoleFormFields({
   mode,
   initial,
+  busy,
   onClose,
   onSubmit,
 }: FieldsProps) {
@@ -76,11 +80,13 @@ function RbacRoleFormFields({
         </Stack>
       </DialogContent>
       <DialogActions>
-        <Button onClick={onClose}>Cancel</Button>
+        <Button onClick={onClose} disabled={busy}>
+          Cancel
+        </Button>
         <Button
           onClick={handleSave}
           variant="contained"
-          disabled={!roleName.trim()}
+          disabled={!roleName.trim() || busy}
         >
           {mode === "create" ? "Create" : "Save"}
         </Button>
@@ -94,18 +100,20 @@ export function RbacRoleFormDialog({
   open,
   mode,
   initial,
+  busy = false,
   onClose,
   onSubmit,
 }: RbacRoleFormDialogProps) {
   const fieldsKey = `${mode}-${initial?.id ?? "new"}`;
 
   return (
-    <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
+    <Dialog open={open} onClose={busy ? undefined : onClose} fullWidth maxWidth="sm">
       {open ? (
         <RbacRoleFormFields
           key={fieldsKey}
           mode={mode}
           initial={initial ?? null}
+          busy={busy}
           onClose={onClose}
           onSubmit={onSubmit}
         />

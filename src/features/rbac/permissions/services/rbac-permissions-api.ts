@@ -1,9 +1,9 @@
-import apiClient from "../../../shared/api/api-client";
+import apiClient from "../../../../shared/api/api-client";
 import type {
   CreateRbacPermissionPayload,
   RbacPermissionDto,
   UpdateRbacPermissionPayload,
-} from "./rbac-permissions.types";
+} from "../types/rbac-permissions.types";
 
 type ListResponse = { data: RbacPermissionDto[] };
 

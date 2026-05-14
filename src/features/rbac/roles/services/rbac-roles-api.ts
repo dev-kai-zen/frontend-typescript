@@ -1,9 +1,9 @@
-import apiClient from "../../../shared/api/api-client";
+import apiClient from "../../../../shared/api/api-client";
 import type {
   CreateRbacRolePayload,
   RbacRoleDto,
   UpdateRbacRolePayload,
-} from "./rbac-roles.types";
+} from "../types/rbac-roles.types";
 
 type ListRolesResponse = { data: RbacRoleDto[] };
 

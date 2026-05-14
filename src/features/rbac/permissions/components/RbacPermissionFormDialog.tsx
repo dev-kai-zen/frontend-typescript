@@ -14,14 +14,15 @@ import {
 } from "@mui/material";
 import { useState } from "react";
 
-import type { RbacCategoryDto, RbacPermissionDto } from "./rbac-permissions.types";
+import type { RbacCategoryDto } from "../../categories/types/rbac-categories.types";
+import type { RbacPermissionDto } from "../types/rbac-permissions.types";
 
 export type RbacPermissionFormDialogProps = {
   open: boolean;
   mode: "create" | "edit";
-  /** Edit mode: existing row */
   initial?: RbacPermissionDto | null;
   categories: RbacCategoryDto[];
+  busy?: boolean;
   onClose: () => void;
   onSubmit: (values: {
     permissionCode: string;
@@ -36,18 +37,16 @@ type FieldsProps = {
   mode: "create" | "edit";
   initial: RbacPermissionDto | null;
   categories: RbacCategoryDto[];
+  busy: boolean;
   onClose: () => void;
   onSubmit: RbacPermissionFormDialogProps["onSubmit"];
 };
 
-/**
- * Mounted with a `key` from the parent so initial `useState` values reset per open/mode/row
- * without a sync effect.
- */
 function RbacPermissionFormFields({
   mode,
   initial,
   categories,
+  busy,
   onClose,
   onSubmit,
 }: FieldsProps) {
@@ -96,7 +95,7 @@ function RbacPermissionFormFields({
             onChange={(e) => setCode(e.target.value)}
             required
             fullWidth
-            disabled={mode === "edit"}
+            disabled={mode === "edit" || busy}
             helperText={
               mode === "edit"
                 ? "Code cannot be changed after creation (unique key)."
@@ -110,8 +109,9 @@ function RbacPermissionFormFields({
             fullWidth
             multiline
             minRows={2}
+            disabled={busy}
           />
-          <FormControl fullWidth>
+          <FormControl fullWidth disabled={busy}>
             <InputLabel id="rbac-perm-category-label">Category</InputLabel>
             <Select
               labelId="rbac-perm-category-label"
@@ -132,11 +132,13 @@ function RbacPermissionFormFields({
         </Stack>
       </DialogContent>
       <DialogActions>
-        <Button onClick={onClose}>Cancel</Button>
+        <Button onClick={onClose} disabled={busy}>
+          Cancel
+        </Button>
         <Button
           onClick={handleSave}
           variant="contained"
-          disabled={!code.trim()}
+          disabled={!code.trim() || busy}
         >
           {mode === "create" ? "Create" : "Save"}
         </Button>
@@ -145,27 +147,26 @@ function RbacPermissionFormFields({
   );
 }
 
-/**
- * Single form for create + edit so validation and fields stay in one place.
- */
 export function RbacPermissionFormDialog({
   open,
   mode,
   initial,
   categories,
+  busy = false,
   onClose,
   onSubmit,
 }: RbacPermissionFormDialogProps) {
   const fieldsKey = `${mode}-${initial?.id ?? "new"}`;
 
   return (
-    <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
+    <Dialog open={open} onClose={busy ? undefined : onClose} fullWidth maxWidth="sm">
       {open ? (
         <RbacPermissionFormFields
           key={fieldsKey}
           mode={mode}
           initial={initial ?? null}
           categories={categories}
+          busy={busy}
           onClose={onClose}
           onSubmit={onSubmit}
         />

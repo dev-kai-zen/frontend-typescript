@@ -1,29 +1,28 @@
-import CategoryIcon from "@mui/icons-material/Category";
-import FolderOutlinedIcon from "@mui/icons-material/FolderOutlined";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
+import SecurityIcon from "@mui/icons-material/Security";
 import Grid from "@mui/material/Grid";
 
-import type { RbacCategoriesPageStats } from "../hooks/useRbacCategoriesPage";
 import { RbacStatCard } from "../../../../shared/components/rbac/RbacStatCard";
+import type { RbacRolesPageStats } from "../hooks/useRbacRolesPage";
 
 type Props = {
-  stats: RbacCategoriesPageStats;
+  stats: RbacRolesPageStats;
 };
 
-export function RbacCategoriesStatCards({ stats }: Props) {
+export function RbacRolesKpiCards({ stats }: Props) {
   return (
     <Grid container spacing={2}>
       <Grid size={{ xs: 12, sm: 6, md: 4 }}>
         <RbacStatCard
-          label="Categories"
-          value={String(stats.categories)}
+          label="Roles"
+          value={String(stats.roles)}
           tone="primary"
-          icon={<CategoryIcon />}
+          icon={<SecurityIcon />}
         />
       </Grid>
       <Grid size={{ xs: 12, sm: 6, md: 4 }}>
         <RbacStatCard
-          label="Permissions"
+          label="Permissions in catalog"
           value={String(stats.permissions)}
           tone="info"
           icon={<LockOutlinedIcon />}
@@ -31,10 +30,10 @@ export function RbacCategoriesStatCards({ stats }: Props) {
       </Grid>
       <Grid size={{ xs: 12, sm: 6, md: 4 }}>
         <RbacStatCard
-          label="Avg per category"
-          value={stats.avgPerCat}
+          label="Roles with description"
+          value={String(stats.withDesc)}
           tone="success"
-          icon={<FolderOutlinedIcon />}
+          icon={<SecurityIcon />}
         />
       </Grid>
     </Grid>

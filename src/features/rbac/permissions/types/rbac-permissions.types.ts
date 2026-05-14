@@ -3,8 +3,6 @@
  * Shapes follow the Sequelize models (snake_case) returned by the backend.
  */
 
-export type { RbacCategoryDto } from "../categories/types/rbac-categories.types";
-
 export type RbacPermissionDto = {
   id: number;
   permission_code: string;

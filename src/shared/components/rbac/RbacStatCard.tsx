@@ -11,7 +11,7 @@ export type RbacStatCardProps = {
   tone?: RbacStatTone;
 };
 
-/** Compact KPI tile used across RBAC admin screens (matches rbac-design stats row). */
+/** Compact KPI tile used across RBAC-style admin screens. */
 export function RbacStatCard({
   label,
   value,

@@ -1,6 +1,6 @@
 import { Alert, LinearProgress, Stack } from "@mui/material";
 
-import { RbacAdminSection } from "../../rbac/components/RbacAdminSection";
+import { RbacAdminSection } from "../../../shared/components/rbac/RbacAdminSection";
 import { AuditLogDetailDialog } from "../components/AuditLogDetailDialog";
 import { AuditLogsKpiCards } from "../components/AuditLogsKpiCards";
 import { AuditLogsPageIntro } from "../components/AuditLogsPageIntro";

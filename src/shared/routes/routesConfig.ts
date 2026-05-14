@@ -16,7 +16,7 @@ import HomePage from "../../features/home/HomePage";
 import RbacCategoriesPage from "../../features/rbac/categories/pages/RbacCategoriesPage";
 import RbacPermissionsPage from "../../features/rbac/permissions/RbacPermissionsPage";
 import RbacRoleAssignmentsHistoryPage from "../../features/rbac/role-assignments-history/RbacRoleAssignmentsHistoryPage";
-import RbacRolePermissionsPage from "../../features/rbac/role-permissions/RbacRolePermissionsPage";
+import RbacRolePermissionsPage from "../../features/rbac/role-permissions-matrix/RbacRolePermissionsPage";
 import RbacRolesPage from "../../features/rbac/roles/RbacRolesPage";
 import SettingsPage from "../../features/settings/SettingsPage";
 import UserLogsPage from "../../features/user-logs/UserLogsPage";

@@ -29,8 +29,8 @@ import {
 import Grid from "@mui/material/Grid";
 import { type ChangeEvent, useEffect, useMemo, useState } from "react";
 
-import { RbacAdminSection } from "../rbac/components/RbacAdminSection";
-import { RbacStatCard } from "../rbac/components/RbacStatCard";
+import { RbacAdminSection } from "../../shared/components/rbac/RbacAdminSection";
+import { RbacStatCard } from "../../shared/components/rbac/RbacStatCard";
 import { getRbacApiErrorMessage } from "../rbac/permissions/rbac-api-errors";
 import { fetchUserLogs } from "./user-logs-api";
 import type { UserLogDto } from "./user-logs.types";

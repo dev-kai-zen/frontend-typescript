@@ -35,10 +35,10 @@ import {
 import Grid from "@mui/material/Grid";
 import { useEffect, useMemo, useState } from "react";
 
-import { RbacAdminSection } from "../rbac/components/RbacAdminSection";
-import { RbacStatCard } from "../rbac/components/RbacStatCard";
+import { RbacAdminSection } from "../../shared/components/rbac/RbacAdminSection";
+import { RbacStatCard } from "../../shared/components/rbac/RbacStatCard";
 import { getRbacApiErrorMessage } from "../rbac/permissions/rbac-api-errors";
-import { fetchRbacRoles } from "../rbac/roles/rbac-roles-api";
+import { fetchRbacRoles } from "../rbac/roles/services/rbac-roles-api";
 import {
   deleteUserAdmin,
   fetchUsersForAdmin,

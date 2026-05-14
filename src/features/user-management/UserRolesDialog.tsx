@@ -18,8 +18,8 @@ import { useEffect, useState } from "react";
 
 import { useAuthStore } from "../auth/auth-store";
 import { getRbacApiErrorMessage } from "../rbac/permissions/rbac-api-errors";
-import { fetchRbacRoles } from "../rbac/roles/rbac-roles-api";
-import type { RbacRoleDto } from "../rbac/roles/rbac-roles.types";
+import { fetchRbacRoles } from "../rbac/roles/services/rbac-roles-api";
+import type { RbacRoleDto } from "../rbac/roles/types/rbac-roles.types";
 import type { UserListItemDto } from "./users-api";
 import { fetchUserRoles, setUserRoles } from "./user-roles-api";
 

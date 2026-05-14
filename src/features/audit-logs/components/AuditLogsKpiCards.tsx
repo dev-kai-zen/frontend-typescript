@@ -3,7 +3,7 @@ import DifferenceIcon from "@mui/icons-material/Difference";
 import SubjectIcon from "@mui/icons-material/Subject";
 import Grid from "@mui/material/Grid";
 
-import { RbacStatCard } from "../../rbac/components/RbacStatCard";
+import { RbacStatCard } from "../../../shared/components/rbac/RbacStatCard";
 import type { AuditLogsPageStats } from "../hooks/useAuditLogsPage";
 
 type Props = {

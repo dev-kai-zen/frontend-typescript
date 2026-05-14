@@ -14,7 +14,7 @@ import {
 } from "@mui/material";
 import Grid from "@mui/material/Grid";
 
-import { RbacAdminSection } from "../../components/RbacAdminSection";
+import { RbacAdminSection } from "../../../../shared/components/rbac/RbacAdminSection";
 import type { RbacCategoryDto } from "../types/rbac-categories.types";
 
 type Props = {
