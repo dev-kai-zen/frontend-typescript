@@ -6,6 +6,7 @@ import AppRoutes from "./shared/routes/AppRoutes";
 import { getEnv } from "./shared/config/env";
 import { AppQueryProvider } from "./shared/query/AppQueryProvider";
 import { AppThemeProvider } from "./shared/theme/AppThemeProvider";
+import { SnackbarProvider } from "notistack";
 
 export default function App() {
   const { googleClientId } = getEnv();
@@ -18,15 +19,22 @@ export default function App() {
   return (
     <BrowserRouter>
       <AppQueryProvider>
-        <AppThemeProvider>
-          {googleClientId ? (
-            <GoogleOAuthProvider clientId={googleClientId}>
-              {routes}
-            </GoogleOAuthProvider>
-          ) : (
-            routes
-          )}
-        </AppThemeProvider>
+        <SnackbarProvider
+          maxSnack={3}
+          preventDuplicate={true}
+          autoHideDuration={3000}
+          anchorOrigin={{ vertical: "top", horizontal: "right" }}
+        >
+          <AppThemeProvider>
+            {googleClientId ? (
+              <GoogleOAuthProvider clientId={googleClientId}>
+                {routes}
+              </GoogleOAuthProvider>
+            ) : (
+              routes
+            )}
+          </AppThemeProvider>
+        </SnackbarProvider>
       </AppQueryProvider>
     </BrowserRouter>
   );

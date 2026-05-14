@@ -1,10 +1,8 @@
 import { GoogleLogin } from "@react-oauth/google";
 import {
-  Alert,
   Box,
   Card,
   CircularProgress,
-  Snackbar,
   Typography,
 } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
@@ -103,22 +101,6 @@ export default function LoginPage() {
           </Box>
         </Card>
       </Box>
-      <Snackbar
-        open={Boolean(vm.snack)}
-        autoHideDuration={4000}
-        onClose={vm.dismissSnack}
-        anchorOrigin={{ vertical: "top", horizontal: "right" }}
-      >
-        {vm.snack ? (
-          <Alert
-            severity={vm.snack.severity}
-            onClose={vm.dismissSnack}
-            sx={{ width: "100%" }}
-          >
-            {vm.snack.message}
-          </Alert>
-        ) : undefined}
-      </Snackbar>
     </>
   );
 }
