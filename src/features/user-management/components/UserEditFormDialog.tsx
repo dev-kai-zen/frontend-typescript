@@ -9,7 +9,7 @@ import {
 } from "@mui/material";
 import { useState } from "react";
 
-import type { UserListItemDto } from "./users-api";
+import type { UserListItemDto } from "../types/users.types";
 
 export type UserEditFormDialogProps = {
   open: boolean;

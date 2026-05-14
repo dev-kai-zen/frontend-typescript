@@ -1,6 +1,6 @@
-import { fetchUsersForAdmin } from "../../../user-management/users-api";
-import { fetchUserRoles } from "../../../user-management/user-roles-api";
-import type { UserRoleLinkDto } from "../../../user-management/user-roles.types";
+import { fetchUsersForAdmin } from "../../../user-management/services/users-api";
+import { fetchUserRoles } from "../../../user-management/services/user-roles-api";
+import type { UserRoleLinkDto } from "../../../user-management/types/user-roles.types";
 import { fetchRbacRoles } from "../../roles/services/rbac-roles-api";
 import type { RoleAssignmentRow } from "../types/role-assignments-history.types";
 import { formatAssignmentWhen } from "../utils/role-assignments-history-format";

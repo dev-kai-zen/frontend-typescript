@@ -1,5 +1,6 @@
-import apiClient from "../../shared/api/api-client";
-import type { SetUserRolesPayload, UserRoleLinkDto } from "./user-roles.types";
+import apiClient from "../../../shared/api/api-client";
+
+import type { SetUserRolesPayload, UserRoleLinkDto } from "../types/user-roles.types";
 
 type ListResponse = { data: UserRoleLinkDto[] };
 type SetResponse = { data: UserRoleLinkDto[] };
@@ -21,12 +22,9 @@ export async function setUserRoles(
   userId: number,
   payload: SetUserRolesPayload,
 ): Promise<UserRoleLinkDto[]> {
-  const body = (await apiClient.put(
-    `/api/v1/rbac/users/${userId}/roles`,
-    {
-      roleIds: payload.roleIds,
-      assignedBy: payload.assignedBy,
-    },
-  )) as SetResponse;
+  const body = (await apiClient.put(`/api/v1/rbac/users/${userId}/roles`, {
+    roleIds: payload.roleIds,
+    assignedBy: payload.assignedBy,
+  })) as SetResponse;
   return body.data ?? [];
 }

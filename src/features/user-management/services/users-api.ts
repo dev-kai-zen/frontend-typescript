@@ -1,13 +1,6 @@
-import apiClient from "../../shared/api/api-client";
+import apiClient from "../../../shared/api/api-client";
 
-export type UserListItemDto = {
-  id: number;
-  email: string;
-  full_name: string | null;
-  is_active: boolean;
-  google_id?: string | null;
-  picture_url?: string | null;
-};
+import type { UpdateUserAdminPayload, UserListItemDto } from "../types/users.types";
 
 type ListUsersResponse = { data: UserListItemDto[] };
 
@@ -22,10 +15,7 @@ export async function fetchUsersForAdmin(options?: {
   const params = new URLSearchParams();
   if (options?.isActive === true) params.set("isActive", "true");
   if (options?.isActive === false) params.set("isActive", "false");
-  if (
-    options?.roleId !== undefined &&
-    Number.isFinite(options.roleId)
-  ) {
+  if (options?.roleId !== undefined && Number.isFinite(options.roleId)) {
     params.set("roleId", String(options.roleId));
   }
   const q = params.toString();
@@ -33,14 +23,6 @@ export async function fetchUsersForAdmin(options?: {
   const body = (await apiClient.get(url)) as ListUsersResponse;
   return body.data ?? [];
 }
-
-export type UpdateUserAdminPayload = {
-  email?: string;
-  fullName?: string | null;
-  googleId?: string | null;
-  pictureUrl?: string | null;
-  isActive?: boolean;
-};
 
 /**
  * PATCH /api/v1/users/:id — partial update (camelCase body matches backend Zod schemas).
