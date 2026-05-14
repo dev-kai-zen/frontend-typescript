@@ -1,4 +1,4 @@
-import { useAuthStore } from "../../modules/auth/auth-store";
+import { useAuthStore } from "../../features/auth/auth-store";
 import { useLocation } from "react-router-dom";
 import { LinearProgress } from "@mui/material";
 import { Navigate, Outlet } from "react-router-dom";

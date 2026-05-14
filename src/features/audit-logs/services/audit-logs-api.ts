@@ -1,5 +1,5 @@
-import apiClient from "../../shared/api/api-client";
-import type { AuditLogDto, ListAuditLogsQuery } from "./audit-logs.types";
+import apiClient from "../../../shared/api/api-client";
+import type { AuditLogDto, ListAuditLogsQuery } from "../types/audit-logs.types";
 
 type ListAuditLogsResponse = { data: AuditLogDto[] };
 

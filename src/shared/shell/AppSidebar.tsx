@@ -21,7 +21,7 @@ import {
 } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
-import { useAuthStore } from "../../modules/auth/auth-store";
+import { useAuthStore } from "../../features/auth/auth-store";
 import { filterNavTreeByPermissions } from "../routes/route-permission";
 import {
   ROUTES_SIDEBAR_TREE,

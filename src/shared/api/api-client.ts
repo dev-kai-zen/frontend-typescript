@@ -2,7 +2,7 @@ import type { AxiosError, InternalAxiosRequestConfig } from "axios";
 import axios from "axios";
 
 import { getEnv } from "../config/env";
-import { postRefresh } from "../../modules/auth/refresh-api";
+import { postRefresh } from "../../features/auth/refresh-api";
 
 /**
  * Kept in sync by the auth store and the refresh interceptor so each request
@@ -60,11 +60,11 @@ apiClient.interceptors.response.use(
         throw new Error("Refresh failed");
       }
       authTokenRef.current = body.data.accessToken;
-      const { useAuthStore } = await import("../../modules/auth/auth-store");
+      const { useAuthStore } = await import("../../features/auth/auth-store");
       useAuthStore.getState().setAccessToken(body.data.accessToken);
       return apiClient.request(original);
     } catch {
-      const { useAuthStore } = await import("../../modules/auth/auth-store");
+      const { useAuthStore } = await import("../../features/auth/auth-store");
       useAuthStore.getState().clearSession();
       return Promise.reject(error);
     }

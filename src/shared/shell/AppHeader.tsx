@@ -18,8 +18,8 @@ import {
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-import { logoutOnServer } from "../../modules/auth/authApi";
-import { useAuthStore } from "../../modules/auth/auth-store";
+import { logoutOnServer } from "../../features/auth/authApi";
+import { useAuthStore } from "../../features/auth/auth-store";
 import { useThemeMode } from "../theme/AppThemeProvider";
 
 function ThemeToggleButton() {

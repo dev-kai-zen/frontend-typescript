@@ -10,17 +10,17 @@ import VpnKeyIcon from "@mui/icons-material/VpnKey";
 import PersonIcon from "@mui/icons-material/Person";
 import SettingsIcon from "@mui/icons-material/Settings";
 
-import AuditLogsPage from "../../modules/audit-logs/AuditLogsPage";
-import HiddenRoutePage from "../../modules/hidden-route/HiddenRoutePage";
-import HomePage from "../../modules/home/HomePage";
-import RbacCategoriesPage from "../../modules/rbac/categories/RbacCategoriesPage";
-import RbacPermissionsPage from "../../modules/rbac/permissions/RbacPermissionsPage";
-import RbacRoleAssignmentsHistoryPage from "../../modules/rbac/role-assignments-history/RbacRoleAssignmentsHistoryPage";
-import RbacRolePermissionsPage from "../../modules/rbac/role-permissions/RbacRolePermissionsPage";
-import RbacRolesPage from "../../modules/rbac/roles/RbacRolesPage";
-import SettingsPage from "../../modules/settings/SettingsPage";
-import UserLogsPage from "../../modules/user-logs/UserLogsPage";
-import UserManagementPage from "../../modules/user-management/UserManagementPage";
+import AuditLogsPage from "../../features/audit-logs/AuditLogsPage";
+import HiddenRoutePage from "../../features/hidden-route/HiddenRoutePage";
+import HomePage from "../../features/home/HomePage";
+import RbacCategoriesPage from "../../features/rbac/categories/RbacCategoriesPage";
+import RbacPermissionsPage from "../../features/rbac/permissions/RbacPermissionsPage";
+import RbacRoleAssignmentsHistoryPage from "../../features/rbac/role-assignments-history/RbacRoleAssignmentsHistoryPage";
+import RbacRolePermissionsPage from "../../features/rbac/role-permissions/RbacRolePermissionsPage";
+import RbacRolesPage from "../../features/rbac/roles/RbacRolesPage";
+import SettingsPage from "../../features/settings/SettingsPage";
+import UserLogsPage from "../../features/user-logs/UserLogsPage";
+import UserManagementPage from "../../features/user-management/UserManagementPage";
 
 import type { RouteNavItem } from "./route-nav-types";
 
