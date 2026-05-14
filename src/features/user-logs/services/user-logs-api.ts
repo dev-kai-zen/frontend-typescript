@@ -1,5 +1,5 @@
-import apiClient from "../../shared/api/api-client";
-import type { ListUserLogsQuery, UserLogDto } from "./user-logs.types";
+import apiClient from "../../../shared/api/api-client";
+import type { ListUserLogsQuery, UserLogDto } from "../types/user-logs.types";
 
 type ListUserLogsResponse = { data: UserLogDto[] };
 
