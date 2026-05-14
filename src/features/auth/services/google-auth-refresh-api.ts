@@ -1,7 +1,7 @@
 import axios from "axios";
 
-import { getEnv } from "../../shared/config/env";
-import type { ApiResult } from "../../shared/types/api-result.types";
+import { getEnv } from "../../../shared/config/env";
+import type { ApiResult } from "../../../shared/types/api-result.types";
 
 /**
  * Uses plain Axios (not `apiClient`) so a 401 does not trigger an infinite

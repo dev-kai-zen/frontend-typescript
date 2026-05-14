@@ -18,7 +18,7 @@ import {
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-import { logoutOnServer } from "../../features/auth/authApi";
+import { logoutOnServer } from "../../features/auth/services/google-auth-api";
 import { useAuthStore } from "../../features/auth/auth-store";
 import { useThemeMode } from "../theme/AppThemeProvider";
 

@@ -2,7 +2,7 @@ import type { AxiosError, InternalAxiosRequestConfig } from "axios";
 import axios from "axios";
 
 import { getEnv } from "../config/env";
-import { postRefresh } from "../../features/auth/refresh-api";
+import { postRefresh } from "../../features/auth/services/google-auth-refresh-api";
 
 /**
  * Kept in sync by the auth store and the refresh interceptor so each request
